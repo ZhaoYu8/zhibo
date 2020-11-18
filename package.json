@@ -2,7 +2,7 @@
   "name": "zhibo",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://zhaoyu8.github.io/zhibo/",
+  "homepage": "https://ZhaoYu8.github.io/zhibo/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
