@@ -1,87 +1,181 @@
 <template>
-  <div class="video">
-    <!-- playsinline webkit-playsinline webkit ios9 前版本 解决ios中自动全屏的问题 -->
-    <video ref="video" data-setup="{}" class="video-js vjs-fluid" webkit-playsinline playsinline></video>
-    <button>换台</button>
+  <div class="video" @click="fullScreen">
+    <div class="video-content">
+      <div id="video-content"></div>
+      <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
+    </div>
+    <div class="video-box">
+      <div class="video-box-currency">
+        <div class="prize">
+          已获得游戏币： 2841541
+        </div>
+      </div>
+      <div class="video-box-buttons" :class="{ disabled: !status.success }">
+        <div class="button" @click="push">投币</div>
+        <div class="button wiper" @click="wiper">雨刷</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { MESSAGE_TYPE } from 'vue-baberrage';
 export default {
   data() {
     return {
-      str: 'http://ivi.bupt.edu.cn/hls/cctv',
-      num: 1,
-      src: 'https://logos-channel.scaleengine.net/logos-channel/live/biblescreen-ad-free/playlist.m3u8',
-      src1: 'http://hls01open.ys7.com/openlive/a05711d6e3c3478dade4eef420be9750.m3u8',
-      src2: 'http://ivi.bupt.edu.cn/hls/cctv10.m3u8',
-      player: null,
+      status: {},
+      msg: 'Hello vue-baberrage',
+      barrageIsShow: true,
+      barrageLoop: false,
+      barrageList: [],
     };
   },
-  mounted() {
-    this.player = videojs(
-      this.$refs.video,
-      {
-        height: (document.documentElement.clientWidth / 4) * 3,
-        width: document.documentElement.clientWidth,
-        autoplay: 'muted', // 静音模式自动播放
-        controls: true,
-        controlBar: {
-          liveDisplay: false, // 是否显示直播字体
-          fullscreenToggle: false,
-        },
-        liveui: false, // 是否显示直播字眼，以及进度条
-        inactivityTimeout: 1000, // 交互 0 为永远处于交互模式
-        notSupportedMessage: '阿西吧为啥放不了',
-        fullscreen: {
-          options: { navigationUI: 'show' },
-        },
-        sources: [
-          {
-            src: this.src1,
-            type: 'application/x-mpegURL',
-          },
-        ],
-      },
-      () => {}
-    );
-  },
   beforeDestroy() {
-    if (this.player) {
-      this.player.dispose();
-    }
+    clearInterval(this.interVal);
   },
-  methods: {},
+  mounted() {
+    this.init();
+    document.body.addEventListener('touchstart', () => {});
+    this.queryStatus();
+    this.interVal = setInterval(() => {
+      this.queryStatus();
+    }, 3000);
+  },
+  methods: {
+    init() {
+      this.decoder = new EZUIKit.EZUIPlayer({
+        id: 'video-content',
+        autoplay: true,
+        url: 'ezopen://open.ys7.com/E89972059/1.hd.live',
+        accessToken: 'at.2wiruvkh42o5dk3s8swbwu8p0kna67ks-4qpqvczwnt-1ypgqeu-jpeklhlcd',
+        decoderPath: './assets/ezuikit_v3.4',
+        width: (document.getElementById('video-content').offsetHeight / 3) * 4,
+        height: document.getElementById('video-content').offsetHeight,
+      });
+    },
+    async queryStatus() {
+      let res = await this.$post('coin/queryStatus', {
+        coinId: parseInt(this.$route.query.coinId),
+      });
+      this.status = res.data;
+    },
+    fullScreen() {
+      // 全屏
+      return;
+      setTimeout(() => {
+        let event = document.getElementsByClassName('play-window')[0];
+        let height = parseInt(event.style.height || 0);
+        if (height && height < document.getElementById('video-content').offsetHeight) {
+          event.removeAttribute('style');
+        }
+      }, 200);
+    },
+    async push() {
+      this.barrageList.push({
+        id: Math.round(9999999999999 * Math.random()),
+        avatar: require('../../assets/logo.png'),
+        msg: '1321',
+        time: 5,
+        type: MESSAGE_TYPE.NORMAL,
+      });
+      if (!this.status.success) {
+        this.$notify({ type: 'warning', message: '机器在使用中！' });
+        return;
+      }
+      let res = await this.$post('coin/push', {
+        coinId: parseInt(this.$route.query.coinId),
+        userId: Math.round(9999999999999 * Math.random()),
+      });
+      if (!res.data.success) return;
+    },
+    async wiper() {
+      if (!this.status.success) {
+        this.$notify({ type: 'warning', message: '机器在使用中！' });
+        return;
+      }
+      let res = await this.$post('coin/wiper', {
+        coinId: parseInt(this.$route.query.coinId),
+        userId: Math.round(9999999999999 * Math.random()),
+      });
+      if (!res.data.success) return;
+    },
+  },
 };
 </script>
 
 <style lang="scss" scope>
 .video {
   height: 100%;
-  .video-js .vjs-title-bar {
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-
-    /*
-    By default, do not show the title bar.
-  */
-    display: none;
-    font-size: 2em;
-    padding: 0.5em;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+  z-index: 11;
+  background-color: #ffeb94;
+  display: flex;
+  flex-direction: column;
+  .video-content {
+    height: 75%;
+    position: relative;
+    #video-content {
+      height: 100%;
+    }
+    .baberrage {
+      height: 100%;
+      top: 0;
+    }
   }
-
-  /* 
-  Only show the title bar after playback has begun (so as not to hide
-  the big play button) and only when paused or when the user is 
-  interacting with the player.
-*/
-  .video-js.vjs-paused.vjs-has-started .vjs-title-bar,
-  .video-js.vjs-user-active.vjs-has-started .vjs-title-bar {
-    display: block;
+  &-box {
+    flex-grow: 1;
+    display: inline-flex;
+    flex-direction: column;
+    &-currency {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      margin-left: 5%;
+      .prize {
+        font-size: 12px;
+        color: #000000;
+        background-color: #ff9d75;
+        padding: 5px 20px;
+        border-radius: 13px;
+      }
+    }
+    &-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-grow: 1;
+      margin: 0 5%;
+      .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45%;
+        padding: 18px 0;
+        font-size: 18px;
+        border-radius: 8px;
+        outline: none;
+        background-color: #ff628f;
+        color: #fff;
+        transition: all 0.2s;
+        box-shadow: 0 6px 0 #00000030;
+        &:active {
+          box-shadow: 0 3px 0 #00000030;
+          transform: translate3d(0, 3px, 0);
+        }
+      }
+      .wiper {
+        background-color: #45bca9;
+      }
+    }
+    .disabled {
+      .button {
+        background-color: #d2c1c1fa;
+        box-shadow: 0 0 0;
+        &:active {
+          box-shadow: 0 0 0;
+          transform: none;
+        }
+      }
+    }
   }
 }
 </style>

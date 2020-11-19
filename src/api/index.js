@@ -1,5 +1,6 @@
+let baseURL = process.env.NODE_ENV === 'development' ? 'api/' : 'http://115.159.182.249:5000/';
 let instance = axios.create({
-  baseURL: 'api/',
+  baseURL: baseURL,
   timeout: 15000,
   responseType: 'json',
   validateStatus(status) {
@@ -22,8 +23,8 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    if (response.status === 200 && response.data.error) {
-      this.$notify('错误');
+    if (response.status === 200 && !response.data.success) {
+      vant.Notify('调用失败！');
     }
     return response;
   },
@@ -33,20 +34,20 @@ instance.interceptors.response.use(
       errorMessage = error.response.data.error ? error.response.data.error.message : errorMessage;
       switch (error.response.status) {
         case 404:
-          this.$notify({
+          vant.Notify({
             message: '很抱歉，资源未找到',
             duration: 4000,
           });
           break;
         case 403:
         case 401:
-          this.$notify({
+          vant.Notify({
             message: errorMessage,
             duration: 4000,
           });
           break;
         default:
-          this.$notify({
+          vant.Notify({
             message: errorMessage,
             duration: 4000,
           });
@@ -54,7 +55,7 @@ instance.interceptors.response.use(
       }
       return;
     }
-    this.$notify({
+    vant.Notify({
       message: errorMessage,
       duration: 4000,
     });

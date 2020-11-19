@@ -1,7 +1,19 @@
 <template>
   <div class="home">
-    <div id="video"></div>
-    <van-button type="primary">主要按钮</van-button>
+    <div v-for="item in list" :key="item" class="box" @click="boxClick(item)">
+      <van-image class="image" :src="require('../../assets/cat.jpeg')" fit="cover" />
+      <div class="header">
+        <div>{{ item.statusId ? '游戏中' : '空闲中' }}</div>
+        <div v-show="item.statusId">1人排队</div>
+      </div>
+      <div class="detail">
+        <span>当前奖池: {{ item.statusId }}</span>
+        <div>
+          <span v-show="item.statusId">12人围观</span>
+          <van-button class="button" hairline>围观</van-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -12,63 +24,85 @@ export default {
   data() {
     return {
       list: [],
+      interval: null,
     };
   },
   methods: {
     async init() {
       let res = await this.$get('coin/list');
-      this.list = res.data.result;
+      if (!this.list.length) {
+        this.list = res.data.result;
+        return;
+      }
+      this.list.map((r, i) => {
+        let o = res.data.result.filter((n) => n.coinId === r.coinId)[0];
+        this.$set(this.list[i], 'statusId', o.statusId);
+      });
+    },
+    boxClick(item) {
+      clearInterval(this.interval);
+      this.$router.push({ path: 'pushLevelDetail', query: item });
     },
   },
   mounted() {
-    // var player = new EZUIKit.EZUIKitPlayer({
-    //   autoplay: true,
-    //   id: 'video',
-    //   accessToken: 'at.2wiruvkh42o5dk3s8swbwu8p0kna67ks-4qpqvczwnt-1ypgqeu-jpeklhlcd',
-    //   url: 'ezopen://open.ys7.com/E89972059/1.hd.live',
-    //   template: 'security', // simple - 极简版;standard-标准版;security - 安防版(预览回放);voice-语音版；
-    //   // 视频上方头部控件
-    //   // header: [], // 如果templete参数不为simple,该字段将被覆盖
-    //   // plugin: [], // 加载插件，talk-对讲
-    //   // 视频下方底部控件
-    //   // footer: [], // 如果template参数不为simple,该字段将被覆盖
-    //   audio: 1, // 是否默认开启声音 0 - 关闭 1 - 开启
-    //   // openSoundCallBack: data => console.log("开启声音回调", data),
-    //   // closeSoundCallBack: data => console.log("关闭声音回调", data),
-    //   // startSaveCallBack: data => console.log("开始录像回调", data),
-    //   // stopSaveCallBack: data => console.log("录像回调", data),
-    //   // capturePictureCallBack: data => console.log("截图成功回调", data),
-    //   // fullScreenCallBack: data => console.log("全屏回调", data),
-    //   // getOSDTimeCallBack: data => console.log("获取OSDTime回调", data),
-    //   height: (document.getElementById('video').offsetWidth / 4) * 3,
-    // });
-    new EZUIKit.EZUIPlayer({
-      id: 'video',
-      autoplay: true,
-      url: 'ezopen://open.ys7.com/E89972059/1.live',
-      iType: 2,
-      accessToken: 'at.2wiruvkh42o5dk3s8swbwu8p0kna67ks-4qpqvczwnt-1ypgqeu-jpeklhlcd',
-      decoderPath: './assets/ezuikit_v3.4',
-      height: (document.getElementById('video').offsetWidth / 4) * 3,
-      controls: ['play', 'hd'],
-    });
+    this.init();
+    console.log(2);
+    this.interval = setInterval(() => {
+      console.log(1);
+      this.init();
+    }, 3000);
   },
 };
 </script>
 <style lang="scss" scoped>
 .home {
-  background-color: #ffe17580;
   height: 100%;
-  .video {
-    height: 100%;
-    width: 100%;
-  }
-}
-</style>
-<style lang="scss">
-#EZUIKitPlayer-video {
-  .panel-bottom {
-    display: none;
+  padding: 10px;
+  box-sizing: border-box;
+  .box {
+    height: 180px;
+    background-color: #fffbeb;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    .image {
+      height: 135px;
+    }
+    .header {
+      position: absolute;
+      right: 0;
+      top: 10%;
+      padding: 4px 10px;
+      background-color: #ff9d75;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .detail {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-grow: 1;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #aa7b1e;
+      .button {
+        color: #aa7b1e;
+        background-color: #ffeea2;
+        border: 1px solid #f1d660;
+        border-radius: 14px;
+        overflow: hidden;
+        width: 57px;
+        height: 27px;
+        padding: 0;
+        margin-left: 10px;
+      }
+    }
   }
 }
 </style>

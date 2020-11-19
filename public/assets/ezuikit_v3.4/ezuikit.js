@@ -735,9 +735,7 @@
           _this.loadingSet(0, { text: '初始化完成' });
           _this.loadingEnd(0);
           if (playParams.autoplay) {
-            setTimeout(function() {
-              _this.play();
-            }, 2000);
+            _this.play();
           }
           // setTimeout(function () {
           //   _this.play(playParams);
