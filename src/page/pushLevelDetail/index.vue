@@ -2,13 +2,17 @@
   <div class="video" @click="fullScreen">
     <div class="video-content">
       <div id="video-content"></div>
-      <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
+      <vue-baberrage
+        class="baberrage"
+        :isShow="barrageIsShow"
+        :barrageList="barrageList"
+        :loop="barrageLoop"
+      >
+      </vue-baberrage>
     </div>
     <div class="video-box">
       <div class="video-box-currency">
-        <div class="prize">
-          已获得游戏币： 2841541
-        </div>
+        <div class="prize">已获得游戏币： 2841541</div>
       </div>
       <div class="video-box-buttons" :class="{ disabled: !status.success }">
         <div class="button" @click="push">投币</div>
@@ -19,12 +23,12 @@
 </template>
 
 <script>
-import { MESSAGE_TYPE } from 'vue-baberrage';
+import { MESSAGE_TYPE } from "vue-baberrage";
 export default {
   data() {
     return {
       status: {},
-      msg: 'Hello vue-baberrage',
+      msg: "Hello vue-baberrage",
       barrageIsShow: true,
       barrageLoop: false,
       barrageList: [],
@@ -35,7 +39,7 @@ export default {
   },
   mounted() {
     this.init();
-    document.body.addEventListener('touchstart', () => {});
+    document.body.addEventListener("touchstart", () => {});
     this.queryStatus();
     this.interVal = setInterval(() => {
       this.queryStatus();
@@ -44,17 +48,18 @@ export default {
   methods: {
     init() {
       this.decoder = new EZUIKit.EZUIPlayer({
-        id: 'video-content',
+        id: "video-content",
         autoplay: true,
-        url: 'ezopen://open.ys7.com/E89972059/1.hd.live',
-        accessToken: 'at.c20xo1g19vtfbdhk437o84d59k8cn7j0-9ny89865ub-04ziud0-8ltqvflix',
-        decoderPath: './assets/ezuikit_v3.4',
-        width: (document.getElementById('video-content').offsetHeight / 3) * 4,
-        height: document.getElementById('video-content').offsetHeight,
+        url: "ezopen://open.ys7.com/E89972059/1.hd.live",
+        accessToken:
+          "at.c20xo1g19vtfbdhk437o84d59k8cn7j0-9ny89865ub-04ziud0-8ltqvflix",
+        decoderPath: "./assets/ezuikit_v3.4",
+        width: (document.getElementById("video-content").offsetHeight / 3) * 4,
+        height: document.getElementById("video-content").offsetHeight,
       });
     },
     async queryStatus() {
-      let res = await this.$get('coin/queryStatus', {
+      let res = await this.$get("coin/queryStatus", {
         coinId: parseInt(this.$route.query.coinId),
       });
       this.status = res.data;
@@ -63,26 +68,39 @@ export default {
       // 全屏
       return;
       setTimeout(() => {
-        let event = document.getElementsByClassName('play-window')[0];
+        let event = document.getElementsByClassName("play-window")[0];
         let height = parseInt(event.style.height || 0);
-        if (height && height < document.getElementById('video-content').offsetHeight) {
-          event.removeAttribute('style');
+        if (
+          height &&
+          height < document.getElementById("video-content").offsetHeight
+        ) {
+          event.removeAttribute("style");
         }
       }, 200);
     },
     async push() {
       if (!this.status.success) {
-        this.$notify({ type: 'warning', message: '机器在使用中！' });
+        this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
-      let res = await this.$get('coin/push', {
+      let res = await this.$get("coin/push", {
         coinId: parseInt(this.$route.query.coinId),
-        userId: 999001
+        userId: 999001,
       });
       if (!res.data.success) return;
+      setTimeout(() => {
+        this.QueryPrize();
+      }, 1000);
+    },
+    async QueryPrize() {
+      let res = this.$get("coin/QueryPrize", {
+        userId: this.userId,
+        coinId: parseInt(this.$route.query.coinId),
+      });
+      if(!res.data.success) return;
       this.barrageList.push({
         id: Math.round(9999999999999 * Math.random()),
-        avatar: require('../../assets/logo.png'),
+        avatar: require("../../assets/logo.png"),
         msg: res.data.msg,
         time: 5,
         type: MESSAGE_TYPE.NORMAL,
@@ -90,12 +108,12 @@ export default {
     },
     async wiper() {
       if (!this.status.success) {
-        this.$notify({ type: 'warning', message: '机器在使用中！' });
+        this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
-      let res = await this.$get('coin/wiper', {
+      let res = await this.$get("coin/wiper", {
         coinId: parseInt(this.$route.query.coinId),
-        userId: 999001
+        userId: 999001,
       });
       if (!res.data.success) return;
     },
