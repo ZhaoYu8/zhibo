@@ -47,14 +47,14 @@ export default {
         id: 'video-content',
         autoplay: true,
         url: 'ezopen://open.ys7.com/E89972059/1.hd.live',
-        accessToken: 'at.2wiruvkh42o5dk3s8swbwu8p0kna67ks-4qpqvczwnt-1ypgqeu-jpeklhlcd',
+        accessToken: 'at.c20xo1g19vtfbdhk437o84d59k8cn7j0-9ny89865ub-04ziud0-8ltqvflix',
         decoderPath: './assets/ezuikit_v3.4',
         width: (document.getElementById('video-content').offsetHeight / 3) * 4,
         height: document.getElementById('video-content').offsetHeight,
       });
     },
     async queryStatus() {
-      let res = await this.$post('coin/queryStatus', {
+      let res = await this.$get('coin/queryStatus', {
         coinId: parseInt(this.$route.query.coinId),
       });
       this.status = res.data;
@@ -71,31 +71,31 @@ export default {
       }, 200);
     },
     async push() {
-      this.barrageList.push({
-        id: Math.round(9999999999999 * Math.random()),
-        avatar: require('../../assets/logo.png'),
-        msg: '1321',
-        time: 5,
-        type: MESSAGE_TYPE.NORMAL,
-      });
       if (!this.status.success) {
         this.$notify({ type: 'warning', message: '机器在使用中！' });
         return;
       }
-      let res = await this.$post('coin/push', {
+      let res = await this.$get('coin/push', {
         coinId: parseInt(this.$route.query.coinId),
-        userId: Math.round(9999999999999 * Math.random()),
+        userId: 999001
       });
       if (!res.data.success) return;
+      this.barrageList.push({
+        id: Math.round(9999999999999 * Math.random()),
+        avatar: require('../../assets/logo.png'),
+        msg: res.data.msg,
+        time: 5,
+        type: MESSAGE_TYPE.NORMAL,
+      });
     },
     async wiper() {
       if (!this.status.success) {
         this.$notify({ type: 'warning', message: '机器在使用中！' });
         return;
       }
-      let res = await this.$post('coin/wiper', {
+      let res = await this.$get('coin/wiper', {
         coinId: parseInt(this.$route.query.coinId),
-        userId: Math.round(9999999999999 * Math.random()),
+        userId: 999001
       });
       if (!res.data.success) return;
     },

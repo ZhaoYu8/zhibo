@@ -22,11 +22,11 @@ instance.interceptors.request.use(
 );
 
 instance.interceptors.response.use(
-  (response) => {
-    if (response.status === 200 && !response.data.success) {
-      vant.Notify('调用失败！');
+  (res) => {
+    if (res.status === 200 && !res.data.success) {
+      vant.Notify(res.data.msg || '调用失败！');
     }
-    return response;
+    return res;
   },
   (error) => {
     let errorMessage = '错误，请联系管理员！';

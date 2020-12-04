@@ -31,7 +31,7 @@ export default {
     async init() {
       let res = await this.$get('coin/list');
       if (!this.list.length) {
-        this.list = res.data.result;
+        this.list = res.data.result.filter(r => r.isOnline);
         return;
       }
       this.list.map((r, i) => {
@@ -46,9 +46,7 @@ export default {
   },
   mounted() {
     this.init();
-    console.log(2);
     this.interval = setInterval(() => {
-      console.log(1);
       this.init();
     }, 3000);
   },
