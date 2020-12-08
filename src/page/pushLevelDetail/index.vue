@@ -1,5 +1,5 @@
 <template>
-  <div class="video" @click="fullScreen">
+  <div class="video">
     <div class="video-content">
       <div id="video-content"></div>
       <vue-baberrage
@@ -12,10 +12,16 @@
     </div>
     <div class="video-box">
       <div class="video-box-currency">
-        <div class="prize">已获得游戏币： 2841541</div>
+        <div class="prize">已投币数： {{ num }}</div>
+        <div class="prize">已获得游戏币： {{ returnNumber }}</div>
       </div>
-      <div class="video-box-buttons" :class="{ disabled: !status.success }">
-        <div class="button" @click="push">投币</div>
+      <div
+        class="video-box-buttons"
+        :class="{
+          disabled: status.statusId && status.pushUserId !== userId,
+        }"
+      >
+        <div class="button" @click="pushCurrency">投币</div>
         <div class="button wiper" @click="wiper">雨刷</div>
       </div>
     </div>
@@ -24,6 +30,8 @@
 
 <script>
 import { MESSAGE_TYPE } from "vue-baberrage";
+import { throttle } from "../../common/js/global";
+import EZUIKit from "ezuikit-js";
 export default {
   data() {
     return {
@@ -32,10 +40,20 @@ export default {
       barrageIsShow: true,
       barrageLoop: false,
       barrageList: [],
+      userId: 999001,
+      num: 0,
+      returnNumber: 0,
+      getThrottle: throttle(() => {
+        this.QueryPrize();
+      }, 3000),
+      pushCurrency: throttle(() => {
+        this.push();
+      }, 300),
     };
   },
   beforeDestroy() {
     clearInterval(this.interVal);
+    clearInterval(this.setPrize);
   },
   mounted() {
     this.init();
@@ -46,74 +64,77 @@ export default {
     }, 3000);
   },
   methods: {
+    // 初始化
     init() {
-      this.decoder = new EZUIKit.EZUIPlayer({
+      this.userId = this.$route.query.userId;
+      this.decoder = new EZUIKit.EZUIKitPlayer({
         id: "video-content",
         autoplay: true,
-        url: "ezopen://open.ys7.com/E89972059/1.hd.live",
+        audio: 1,
+        url: "ezopen://open.ys7.com/E98153477/1.hd.live",
         accessToken:
           "at.c20xo1g19vtfbdhk437o84d59k8cn7j0-9ny89865ub-04ziud0-8ltqvflix",
-        decoderPath: "./assets/ezuikit_v3.4",
         width: (document.getElementById("video-content").offsetHeight / 3) * 4,
-        height: document.getElementById("video-content").offsetHeight,
+        controls: ["voice"],
       });
     },
+    // 查询当前机器状态
     async queryStatus() {
       let res = await this.$get("coin/queryStatus", {
         coinId: parseInt(this.$route.query.coinId),
       });
-      this.status = res.data;
+      this.status = res.data.result;
     },
-    fullScreen() {
-      // 全屏
-      return;
-      setTimeout(() => {
-        let event = document.getElementsByClassName("play-window")[0];
-        let height = parseInt(event.style.height || 0);
-        if (
-          height &&
-          height < document.getElementById("video-content").offsetHeight
-        ) {
-          event.removeAttribute("style");
-        }
-      }, 200);
-    },
+    // 投币
     async push() {
-      if (!this.status.success) {
+      if (this.status.statusId && this.status.pushUserId !== this.userId) {
         this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
       let res = await this.$get("coin/push", {
         coinId: parseInt(this.$route.query.coinId),
-        userId: 999001,
+        userId: this.userId,
       });
       if (!res.data.success) return;
-      setTimeout(() => {
-        this.QueryPrize();
-      }, 1000);
+      this.getThrottle();
+      ++this.num;
     },
+    // 查询中奖信息
     async QueryPrize() {
-      let res = this.$get("coin/QueryPrize", {
+      let res = await this.$get("coin/QueryPrize", {
         userId: this.userId,
         coinId: parseInt(this.$route.query.coinId),
       });
-      if(!res.data.success) return;
+      if (!res.data.success) return;
+      let result = res.data.result;
+      if (!result.returnNumber) return;
       this.barrageList.push({
         id: Math.round(9999999999999 * Math.random()),
         avatar: require("../../assets/logo.png"),
-        msg: res.data.msg,
+        msg: result.prizeType
+          ? `恭喜中${result.prizeTypeName}：${result.prizeTypeName}`
+          : "恭喜退币：" + result.returnNumber,
         time: 5,
         type: MESSAGE_TYPE.NORMAL,
       });
+      this.returnNumber = this.returnNumber + result.returnNumber;
+      if (result.prizeType) {
+        this.setPrize = setInterval(() => {
+          this.QueryPrize();
+        }, 3000);
+        return;
+      }
+      if (!this.status.statusId) clearInterval(this.setPrize);
     },
+    // 雨刷
     async wiper() {
-      if (!this.status.success) {
+      if (this.status.statusId && this.status.pushUserId !== this.userId) {
         this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
       let res = await this.$get("coin/wiper", {
         coinId: parseInt(this.$route.query.coinId),
-        userId: 999001,
+        userId: this.userId,
       });
       if (!res.data.success) return;
     },
@@ -132,11 +153,18 @@ export default {
     height: 75%;
     position: relative;
     #video-content {
+      width: 100%;
       height: 100%;
+      overflow: hidden;
+      #EZUIKitPlayer-video-content {
+        left: 50%;
+        position: absolute;
+        transform: translateX(-50%);
+      }
     }
     .baberrage {
-      height: 100%;
-      top: 0;
+      height: 80%;
+      top: 10%;
     }
   }
   &-box {
@@ -154,6 +182,7 @@ export default {
         background-color: #ff9d75;
         padding: 5px 20px;
         border-radius: 13px;
+        margin-right: 10px;
       }
     }
     &-buttons {
@@ -195,5 +224,8 @@ export default {
       }
     }
   }
+}
+.baberrage-stage {
+  z-index: 1;
 }
 </style>

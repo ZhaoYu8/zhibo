@@ -1,9 +1,13 @@
 <template>
   <div class="home">
     <div v-for="item in list" :key="item" class="box" @click="boxClick(item)">
-      <van-image class="image" :src="require('../../assets/cat.jpeg')" fit="cover" />
+      <van-image
+        class="image"
+        :src="require('../../assets/cat.jpeg')"
+        fit="cover"
+      />
       <div class="header">
-        <div>{{ item.statusId ? '游戏中' : '空闲中' }}</div>
+        <div>{{ item.statusId ? "游戏中" : "空闲中" }}</div>
         <div v-show="item.statusId">1人排队</div>
       </div>
       <div class="detail">
@@ -19,7 +23,7 @@
 
 <script>
 export default {
-  name: 'pushLevel',
+  name: "pushLevel",
   components: {},
   data() {
     return {
@@ -29,19 +33,22 @@ export default {
   },
   methods: {
     async init() {
-      let res = await this.$get('coin/list');
+      let res = await this.$get("coin/list");
       if (!this.list.length) {
-        this.list = res.data.result.filter(r => r.isOnline);
+        this.list = res.data.result.filter((r) => r.isOnline);
         return;
       }
       this.list.map((r, i) => {
         let o = res.data.result.filter((n) => n.coinId === r.coinId)[0];
-        this.$set(this.list[i], 'statusId', o.statusId);
+        this.$set(this.list[i], "statusId", o.statusId);
       });
     },
     boxClick(item) {
       clearInterval(this.interval);
-      this.$router.push({ path: 'pushLevelDetail', query: item });
+      this.$router.push({
+        path: "pushLevelDetail",
+        query: { coinId: item.coinId, userId: parseInt(Math.random() * 1000000) },
+      });
     },
   },
   mounted() {
