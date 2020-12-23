@@ -8,9 +8,9 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "aliyun-rts-sdk": "^1.2.4",
     "amfe-flexible": "^2.2.1",
     "core-js": "^3.6.5",
-    "ezuikit-js": "^0.2.1",
     "vue": "^2.6.11",
     "vue-baberrage": "^3.2.4",
     "vue-router": "^3.2.0"

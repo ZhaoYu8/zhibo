@@ -18,6 +18,7 @@
         </div>
       </div>
     </div>
+    <van-button v-if="!list.length" type="primary" @click="boxClick">看视频</van-button>
   </div>
 </template>
 
@@ -30,6 +31,9 @@ export default {
       list: [],
       interval: null,
     };
+  },
+  beforeDestroy() {
+    clearInterval(this.interval);
   },
   methods: {
     async init() {

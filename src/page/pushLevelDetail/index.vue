@@ -1,7 +1,9 @@
 <template>
   <div class="video">
     <div class="video-content">
-      <div id="video-content"></div>
+      <div class="video-wrap">
+        <video id="video" muted></video>
+      </div>
       <vue-baberrage
         class="baberrage"
         :isShow="barrageIsShow"
@@ -18,7 +20,7 @@
       <div
         class="video-box-buttons"
         :class="{
-          disabled: status.statusId && status.pushUserId !== userId,
+          disabled: status.statusId && status.pushUserId !== userId
         }"
       >
         <div class="button" @click="pushCurrency">投币</div>
@@ -31,7 +33,7 @@
 <script>
 import { MESSAGE_TYPE } from "vue-baberrage";
 import { throttle } from "../../common/js/global";
-import EZUIKit from "ezuikit-js";
+import AliRTS from "aliyun-rts-sdk";
 export default {
   data() {
     return {
@@ -48,7 +50,7 @@ export default {
       }, 3000),
       pushCurrency: throttle(() => {
         this.push();
-      }, 300),
+      }, 300)
     };
   },
   beforeDestroy() {
@@ -57,7 +59,6 @@ export default {
   },
   mounted() {
     this.init();
-    document.body.addEventListener("touchstart", () => {});
     this.queryStatus();
     this.interVal = setInterval(() => {
       this.queryStatus();
@@ -66,22 +67,57 @@ export default {
   methods: {
     // 初始化
     init() {
+      let videoID = document.getElementById("video");
+      videoID.style.height = document.body.clientWidth + "px";
+      videoID.style.width = document.body.clientWidth * 3 + "px";
       this.userId = this.$route.query.userId;
-      this.decoder = new EZUIKit.EZUIKitPlayer({
-        id: "video-content",
+      let aliRts = new AliRTS({
+        height: 700,
         autoplay: true,
-        audio: 1,
-        url: "ezopen://open.ys7.com/E98153477/1.hd.live",
-        accessToken:
-          "at.c20xo1g19vtfbdhk437o84d59k8cn7j0-9ny89865ub-04ziud0-8ltqvflix",
-        width: (document.getElementById("video-content").offsetHeight / 3) * 4,
-        controls: ["voice"],
+        isLive: true,
+        rePlay: false, // 播放器自动循环播放。
+        controlBarVisibility: "hover", // 控制面板的实现
+        playsinline: true, // H5是否内置播放，有的Android浏览器不起作用。
+        useH5Prism: true, // 指定使用h5浏览器
+        preload: true // 播放器自动加载
       });
+      aliRts.isSupport({ isReceiveVideo: true }).then(() => {
+        aliRts.startLiveStream("artc://artc.yiyuanmaidian.com/game/1", videoID);
+      });
+      aliRts.on("onError", (err) => {
+        console.log(err);
+        this.$toast("提示文案" + err.errorCode);
+        aliRts.stopLiveStream();
+        setTimeout(() => {
+          aliRts.startLiveStream(
+            "artc://artc.yiyuanmaidian.com/game/1",
+            videoID
+          );
+        }, 1000);
+      });
+      // var player = new Aliplayer(
+      //   {
+      //     id: "video",
+      //     source: "artc://artc.yiyuanmaidian.com/game/1",
+      //     width: "100%",
+      //     height: "100%",
+      //     rePlay: false, // 播放器自动循环播放。
+      //     controlBarVisibility: "hover", // 控制面板的实现
+      //     autoplay: true, // 自动播放
+      //     isLive: true, // 是否是直播
+      //     playsinline: true, // H5是否内置播放，有的Android浏览器不起作用。
+      //     useH5Prism: true, // 指定使用h5浏览器
+      //     preload: true, // 播放器自动加载
+      //   },
+      //   function(player) {
+      //     console.log(player);
+      //   }
+      // );
     },
     // 查询当前机器状态
     async queryStatus() {
       let res = await this.$get("coin/queryStatus", {
-        coinId: parseInt(this.$route.query.coinId),
+        coinId: parseInt(this.$route.query.coinId)
       });
       this.status = res.data.result;
     },
@@ -93,7 +129,7 @@ export default {
       }
       let res = await this.$get("coin/push", {
         coinId: parseInt(this.$route.query.coinId),
-        userId: this.userId,
+        userId: this.userId
       });
       if (!res.data.success) return;
       this.getThrottle();
@@ -103,7 +139,7 @@ export default {
     async QueryPrize() {
       let res = await this.$get("coin/QueryPrize", {
         userId: this.userId,
-        coinId: parseInt(this.$route.query.coinId),
+        coinId: parseInt(this.$route.query.coinId)
       });
       if (!res.data.success) return;
       let result = res.data.result;
@@ -115,7 +151,7 @@ export default {
           ? `恭喜中${result.prizeTypeName}：${result.prizeTypeName}`
           : "恭喜退币：" + result.returnNumber,
         time: 5,
-        type: MESSAGE_TYPE.NORMAL,
+        type: MESSAGE_TYPE.NORMAL
       });
       this.returnNumber = this.returnNumber + result.returnNumber;
       if (result.prizeType) {
@@ -124,7 +160,9 @@ export default {
         }, 3000);
         return;
       }
-      if (!this.status.statusId) clearInterval(this.setPrize);
+      if (!this.status.statusId) {
+        clearInterval(this.setPrize);
+      }
     },
     // 雨刷
     async wiper() {
@@ -134,16 +172,17 @@ export default {
       }
       let res = await this.$get("coin/wiper", {
         coinId: parseInt(this.$route.query.coinId),
-        userId: this.userId,
+        userId: this.userId
       });
       if (!res.data.success) return;
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style lang="scss" scope>
 .video {
+  overflow: hidden;
   height: 100%;
   z-index: 11;
   background-color: #ffeb94;
@@ -152,19 +191,21 @@ export default {
   .video-content {
     height: 75%;
     position: relative;
-    #video-content {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      #EZUIKitPlayer-video-content {
-        left: 50%;
-        position: absolute;
-        transform: translateX(-50%);
-      }
-    }
     .baberrage {
-      height: 80%;
-      top: 10%;
+      height: 90%;
+      top: 5%;
+      z-index: -1;
+    }
+    .video-wrap {
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      #video {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateY(-50%) translateX(-50%) rotateZ(90deg);
+      }
     }
   }
   &-box {
@@ -224,8 +265,5 @@ export default {
       }
     }
   }
-}
-.baberrage-stage {
-  z-index: 1;
 }
 </style>
