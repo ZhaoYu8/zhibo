@@ -2,15 +2,9 @@
   <div class="video">
     <div class="video-content">
       <div class="video-wrap">
-        <video id="video" muted></video>
+        <Video></Video>
       </div>
-      <vue-baberrage
-        class="baberrage"
-        :isShow="barrageIsShow"
-        :barrageList="barrageList"
-        :loop="barrageLoop"
-      >
-      </vue-baberrage>
+      <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
     </div>
     <div class="video-box">
       <div class="video-box-currency">
@@ -20,7 +14,7 @@
       <div
         class="video-box-buttons"
         :class="{
-          disabled: status.statusId && status.pushUserId !== userId
+          disabled: status.pushUserId !== userId && status.statusId
         }"
       >
         <div class="button" @click="pushCurrency">投币</div>
@@ -31,9 +25,9 @@
 </template>
 
 <script>
+import Video from "../../components/common/video";
 import { MESSAGE_TYPE } from "vue-baberrage";
 import { throttle } from "../../common/js/global";
-import AliRTS from "aliyun-rts-sdk";
 export default {
   data() {
     return {
@@ -53,82 +47,26 @@ export default {
       }, 300)
     };
   },
+  components: { Video },
   beforeDestroy() {
     clearInterval(this.interVal);
     clearInterval(this.setPrize);
   },
   mounted() {
-    this.init();
+    this.userId = Number(this.$route.query.userId);
     this.queryStatus();
     this.interVal = setInterval(() => {
       this.queryStatus();
     }, 3000);
   },
   methods: {
-    // 初始化
-    init() {
-      let videoID = document.getElementById("video");
-      videoID.style.height = document.body.clientWidth + "px";
-      videoID.style.width = document.body.clientWidth * 3 + "px";
-      this.userId = this.$route.query.userId;
-      let aliRts = new AliRTS({
-        height: 700,
-        autoplay: true,
-        isLive: true,
-        rePlay: false, // 播放器自动循环播放。
-        controlBarVisibility: "hover", // 控制面板的实现
-        playsinline: true, // H5是否内置播放，有的Android浏览器不起作用。
-        useH5Prism: true, // 指定使用h5浏览器
-        preload: true // 播放器自动加载
-      });
-      aliRts
-        .isSupport({ isReceiveVideo: true })
-        .then(() => {
-          aliRts.startLiveStream(
-            "artc://artc.yiyuanmaidian.com/game/1",
-            videoID
-          );
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$toast(err.message);
-        });
-      aliRts.on("onError", (err) => {
-        console.log(err);
-        this.$toast(err.message);
-        // aliRts.stopLiveStream();
-        // setTimeout(() => {
-        //   aliRts.startLiveStream(
-        //     "artc://artc.yiyuanmaidian.com/game/1",
-        //     videoID
-        //   );
-        // }, 1000);
-      });
-      // let player = new Aliplayer(
-      //   {
-      //     id: "video",
-      //     source: "artc://artc.yiyuanmaidian.com/game/1",
-      //     width: "100%",
-      //     height: "100%",
-      //     rePlay: false, // 播放器自动循环播放。
-      //     controlBarVisibility: "hover", // 控制面板的实现
-      //     autoplay: true, // 自动播放
-      //     isLive: true, // 是否是直播
-      //     playsinline: true, // H5是否内置播放，有的Android浏览器不起作用。
-      //     useH5Prism: true, // 指定使用h5浏览器
-      //     preload: true // 播放器自动加载
-      //   },
-      //   function(player) {
-      //     console.log(player);
-      //   }
-      // );
-    },
     // 查询当前机器状态
     async queryStatus() {
       let res = await this.$get("coin/queryStatus", {
         coinId: parseInt(this.$route.query.coinId)
       });
       this.status = res.data.result;
+      this.status.pushUserId = Number(this.status.pushUserId);
     },
     // 投币
     async push() {
@@ -156,9 +94,7 @@ export default {
       this.barrageList.push({
         id: Math.round(9999999999999 * Math.random()),
         avatar: require("../../assets/logo.png"),
-        msg: result.prizeType
-          ? `恭喜中${result.prizeTypeName}：${result.prizeTypeName}`
-          : "恭喜退币：" + result.returnNumber,
+        msg: result.prizeType ? `恭喜中${result.prizeTypeName}：${result.prizeTypeName}` : "恭喜退币：" + result.returnNumber,
         time: 5,
         type: MESSAGE_TYPE.NORMAL
       });
@@ -198,7 +134,7 @@ export default {
   display: flex;
   flex-direction: column;
   .video-content {
-    height: 75%;
+    height: 70%;
     position: relative;
     .baberrage {
       height: 90%;

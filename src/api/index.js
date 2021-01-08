@@ -24,7 +24,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (res) => {
-    if (res.config.url.indexOf('webrtc')) {
+    if (res.config.url.indexOf("webrtc")) {
       return res;
     }
     if (res.status === 200 && !res.data.success) {

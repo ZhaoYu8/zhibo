@@ -10,11 +10,16 @@ const routes = [
     path: '/pushLevel',
     name: 'pushLevel',
     component: () => import(/* webpackChunkName: "index" */ '../page/pushLevel/index.vue'),
-  },,
+  },
   {
     path: '/pushLevelDetail',
     name: 'pushLevelDetail',
     component: () => import(/* webpackChunkName: "pushLevelDetail" */ '../page/pushLevelDetail/index.vue'),
+  },
+  {
+    path: '/doll',
+    name: 'doll',
+    component: () => import(/* webpackChunkName: "doll" */ '../page/doll/index.vue'),
   },
 ];
 

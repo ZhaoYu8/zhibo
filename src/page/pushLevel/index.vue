@@ -1,7 +1,5 @@
 <template>
   <div class="home">
-    <van-button @click="pullStream">开始</van-button>
-    <video id="999aaa" autoplay unmuted playsinline controls width="100%" height="80%"></video>
     <div v-for="item in list" :key="item" class="box" @click="boxClick(item)">
       <van-image class="image" :src="require('../../assets/cat.jpeg')" fit="cover" />
       <div class="header">
@@ -16,6 +14,7 @@
         </div>
       </div>
     </div>
+    <van-button v-if="!list.length" type="primary" @click="boxClick">看视频</van-button>
   </div>
 </template>
 
@@ -26,86 +25,13 @@ export default {
   data() {
     return {
       list: [],
-      interval: null,
-      streamUrl: "webrtc://live.yiyuanmaidian.com/game/2",
-      streamId: "999aaa",
-      peerConnection: ""
+      interval: null
     };
   },
   beforeDestroy() {
     clearInterval(this.interval);
   },
   methods: {
-    pullStream() {
-      // 初始化
-      this.peerConnection = new RTCPeerConnection(
-        {
-          iceServers: [],
-          bundlePolicy: "max-bundle",
-          rtcpMuxPolicy: "require",
-          tcpCandidatePolicy: "disable",
-          IceTransportsType: "nohost",
-          sdpSemantics: "unified-plan"
-        },
-        {
-          optional: [
-            {
-              DtlsSrtpKeyAgreement: true
-            }
-          ]
-        }
-      );
-      let peerConnection = this.peerConnection;
-      peerConnection.ontrack = (e) => {
-        let track = e.track;
-        if (!peerConnection.stream) {
-          peerConnection.streamId = this.streamId;
-          peerConnection.stream = new MediaStream();
-          peerConnection.stream.addTrack(track);
-          let video = document.getElementById(this.streamId);
-          video.srcObject = peerConnection.stream;
-          video.play();
-        } else {
-          peerConnection.stream.addTrack(track);
-        }
-      };
-      peerConnection
-        .createOffer({
-          offerToReceiveAudio: true,
-          offerToReceiveVideo: true,
-          voiceActivityDetection: false
-        })
-        .then(async (offer) => {
-          let arrSdp = offer.sdp.toString().split("\r\n");
-          let stringSdpModify = "";
-          for (let i = 0; i < arrSdp.length - 1; i++) {
-            if (arrSdp[i].lastIndexOf("a=fmtp:111") != -1) {
-              stringSdpModify += arrSdp[i] + ";stereo=1" + "\r\n";
-            } else {
-              stringSdpModify += arrSdp[i] + "\r\n";
-            }
-          }
-          offer.sdp = stringSdpModify;
-          peerConnection.setLocalDescription(offer);
-
-          let res = await this.$post(
-            "https://webrtc.liveplay.myqcloud.com/webrtc/v1/pullstream",
-            {
-              streamurl: this.streamUrl,
-              sessionid: "sessionId_Test",
-              clientinfo: "clientinfo_test",
-              localsdp: offer
-            },
-            true
-          );
-          let data = res.data;
-          if (data.errcode != 0) {
-            console.log(`pull stream failed!errCode:${data.errcode}, errmsg:${data.errmsg}`);
-            return;
-          }
-          peerConnection.setRemoteDescription(new RTCSessionDescription(data.remotesdp));
-        });
-    },
     async init() {
       let res = await this.$get("coin/list");
       if (!this.list.length) {
@@ -120,7 +46,7 @@ export default {
     boxClick(item) {
       clearInterval(this.interval);
       this.$router.push({
-        path: "pushLevelDetail",
+        path: item.coinType === 1 ? "pushLevelDetail" : "doll",
         query: { coinId: item.coinId, userId: parseInt(Math.random() * 1000000) }
       });
     }
@@ -147,6 +73,7 @@ export default {
     display: flex;
     flex-direction: column;
     position: relative;
+    margin-bottom: 10px;
     .image {
       height: 135px;
     }
