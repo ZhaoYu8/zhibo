@@ -81,21 +81,30 @@ export default {
         useH5Prism: true, // 指定使用h5浏览器
         preload: true // 播放器自动加载
       });
-      aliRts.isSupport({ isReceiveVideo: true }).then(() => {
-        aliRts.startLiveStream("artc://artc.yiyuanmaidian.com/game/1", videoID);
-      });
-      aliRts.on("onError", (err) => {
-        console.log(err);
-        this.$toast("提示文案" + err.errorCode);
-        aliRts.stopLiveStream();
-        setTimeout(() => {
+      aliRts
+        .isSupport({ isReceiveVideo: true })
+        .then(() => {
           aliRts.startLiveStream(
             "artc://artc.yiyuanmaidian.com/game/1",
             videoID
           );
-        }, 1000);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$toast(err.message);
+        });
+      aliRts.on("onError", (err) => {
+        console.log(err);
+        this.$toast(err.message);
+        // aliRts.stopLiveStream();
+        // setTimeout(() => {
+        //   aliRts.startLiveStream(
+        //     "artc://artc.yiyuanmaidian.com/game/1",
+        //     videoID
+        //   );
+        // }, 1000);
       });
-      // var player = new Aliplayer(
+      // let player = new Aliplayer(
       //   {
       //     id: "video",
       //     source: "artc://artc.yiyuanmaidian.com/game/1",
@@ -107,7 +116,7 @@ export default {
       //     isLive: true, // 是否是直播
       //     playsinline: true, // H5是否内置播放，有的Android浏览器不起作用。
       //     useH5Prism: true, // 指定使用h5浏览器
-      //     preload: true, // 播放器自动加载
+      //     preload: true // 播放器自动加载
       //   },
       //   function(player) {
       //     console.log(player);
