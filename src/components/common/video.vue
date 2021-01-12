@@ -1,7 +1,10 @@
 <template>
   <div class="box" @click="toggle">
     <div v-html="content" class="video"></div>
-    <van-icon name="play" class="box-play" @click="play" v-show="playType" />
+    <div v-show="playType" class="box-play">
+      <van-icon name="play-circle" @click="play" color="#fff" size="40" />
+      <div class="c-fff">若不显示，请触摸播放。</div>
+    </div>
   </div>
 </template>
 
@@ -41,7 +44,7 @@ export default {
     },
     // 创建video组件
     createVideoElement(id) {
-      this.content = `<video id="${id}" on-click="toggle" style="object-fit: fill;" autoplay playsinline controls width="100%" height="100%"></video>`;
+      this.content = `<video id="${id}" on-click="toggle" style="object-fit: fill;"  autoplay playsinline width="100%" height="100%"></video>`;
       return document.getElementById(id);
     },
     pullStream() {
@@ -144,10 +147,13 @@ export default {
   position: absolute;
   height: 100%;
   &-play {
+    width: 100%;
+    text-align: center;
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    font-size: 16px;
   }
 }
 .video {

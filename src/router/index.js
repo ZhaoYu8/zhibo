@@ -1,15 +1,15 @@
-import Home from '../page/pushLevel/index.vue';
+import Home from '../page/index/index.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'pushLevel',
+    name: 'index',
     component: Home,
   },
   {
-    path: '/pushLevel',
-    name: 'pushLevel',
-    component: () => import(/* webpackChunkName: "index" */ '../page/pushLevel/index.vue'),
+    path: '/index',
+    name: 'index',
+    component: () => import(/* webpackChunkName: "index" */ '../page/index/index.vue'),
   },
   {
     path: '/pushLevelDetail',
