@@ -1,23 +1,6 @@
 <template>
   <div class="home">
-    <header class="header">
-      <div class="flex">
-        <van-image round class="header-image" :src="require('../../assets/cat.jpeg')" fit="cover" />
-        <span class="ml-10 w-b">皮皮</span>
-      </div>
-      <ul class="header-money">
-        <li class="flex">
-          <van-icon name="gem" class="gem" />
-          <span>100</span>
-          <div class="header-money-button">充值</div>
-        </li>
-        <li class="flex">
-          <van-icon name="gold-coin" class="gold" />
-          <span>200</span>
-          <div class="header-money-button">充值</div>
-        </li>
-      </ul>
-    </header>
+    <Header> <van-image round class="header-image" :src="require('../../assets/cat.jpeg')" fit="cover" /> <span class="ml-10 f-b">皮皮</span></Header>
     <div class="box-swipe">
       <van-swipe class="swipe" :autoplay="8000" indicator-color="#FB605C">
         <van-swipe-item v-for="(image, index) in images" :key="index">
@@ -31,7 +14,7 @@
           <Icon :icon="`#${item.icon}`"></Icon>
         </template>
         <template #text>
-          <div class="mt-10 w-b">{{ item.name }}</div>
+          <div class="mt-10 f-b">{{ item.name }}</div>
         </template>
       </van-grid-item>
     </van-grid>
@@ -112,12 +95,11 @@ export default {
       //   this.$set(this.list[i], "statusId", o.statusId);
       // });
     },
-    boxClick(item) {
-      console.log(item)
+    boxClick(item, row) {
       clearInterval(this.interval);
       this.$router.push({
         path: item.url,
-        query: { coinId: item.coinId, userId: parseInt(Math.random() * 1000000), webrtc: item.item }
+        query: { coinId: row.coinId, userId: parseInt(Math.random() * 1000000), webrtc: row.videoUrl }
       });
     }
   },
@@ -130,55 +112,21 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-$pro-color: #f7d780;
 .flex {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.gem {
+  color: #d97599;
+  font-size: 16px;
+  margin-right: 5px;
 }
 .home {
   height: 100%;
   padding: 10px;
   background-color: $pro-color;
   font-size: 12px;
-  .header {
-    margin-bottom: 10px;
-    @extend .flex;
-    &-image {
-      width: 36px;
-      height: 36px;
-    }
-    .gem {
-      color: #d97599;
-      font-size: 16px;
-      margin-right: 5px;
-    }
-    .gold {
-      @extend .gem;
-      color: #fff377;
-    }
-    &-money {
-      @extend .flex;
-      li {
-        background-color: rgba(0, 0, 0, 0.4);
-        margin-left: 10px;
-        border-radius: 20px;
-        overflow: hidden;
-        font-size: 12px;
-        padding-left: 10px;
-        color: #fff;
-      }
-      &-button {
-        font-size: 10px;
-        background-color: #fb605c;
-        border: 1px solid #e0493d;
-        border-radius: 20px;
-        padding: 5px 10px;
-        white-space: nowrap;
-        margin-left: 5px;
-      }
-    }
-  }
   .box-swipe {
     padding: 10px 10px 20px;
     margin-bottom: 10px;

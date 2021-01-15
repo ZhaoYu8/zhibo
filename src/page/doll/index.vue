@@ -1,13 +1,11 @@
 <template>
   <div class="doll">
     <div class="doll-headed">
-      <van-icon name="stop-circle-o" class="icon" @click="test" size="36" />
+      <van-icon name="revoke" class="icon" @click="goBack" size="36" />
       <van-icon name="chat-o" class="icon" size="36" />
     </div>
-    <div class="doll-on-line">
-
-    </div>
-    <Video class="doll-video"></Video>
+    <div class="doll-on-line"></div>
+    <Video class="doll-video" :webrtc="webrtc" v-if="webrtc"></Video>
     <div class="doll-footer">
       <van-icon name="bullhorn-o" color="#ffe000" size="20" />
       <ul class="doll-footer-info">
@@ -28,8 +26,9 @@
     <div class="doll-paly">
       <img src="../../assets/1.png" alt="" class="photo" />
       <img src="../../assets/2.png" alt="" class="big-photo" />
-      <img src="../../assets/3.png" alt="" class="photo" />
+      <img src="../../assets/3.png" alt="" class="photo" @click="recharge" />
     </div>
+    <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
   </div>
 </template>
 
@@ -40,6 +39,8 @@ import { throttle } from "../../common/js/global";
 export default {
   data() {
     return {
+      webrtc: "",
+      rechargeShow: false,
       status: {},
       userId: 0,
       getThrottle: throttle(() => {
@@ -56,14 +57,15 @@ export default {
   },
   mounted() {
     this.userId = Number(this.$route.query.userId);
+    this.webrtc = this.$route.query.webrtc;
     this.queryStatus();
     this.interVal = setInterval(() => {
       this.queryStatus();
     }, 3000);
   },
   methods: {
-    test() {
-      alert(123);
+    goBack() {
+      this.$router.go(-1);
     },
     // 查询当前机器状态
     async queryStatus() {
@@ -72,6 +74,9 @@ export default {
       });
       this.status = res.data.result;
       this.status.pushUserId = Number(this.status.pushUserId);
+    },
+    recharge() {
+      this.rechargeShow = true;
     }
   }
 };

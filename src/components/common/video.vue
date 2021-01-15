@@ -14,12 +14,17 @@ export default {
   components: {},
   data() {
     return {
-      streamUrl: "webrtc://live.yiyuanmaidian.com/game/2",
       streamId: Date.now().toString(36),
       peerConnection: "",
       content: "",
       playType: true
     };
+  },
+  props: {
+    webrtc: {
+      type: String,
+      default: "webrtc://live.yiyuanmaidian.com/game/2"
+    }
   },
   methods: {
     toggle() {
@@ -107,7 +112,7 @@ export default {
           let res = await this.$post(
             "https://webrtc.liveplay.myqcloud.com/webrtc/v1/pullstream",
             {
-              streamurl: this.streamUrl,
+              streamurl: this.webrtc,
               sessionid: "sessionId_Test",
               clientinfo: "clientinfo_test",
               localsdp: offer
