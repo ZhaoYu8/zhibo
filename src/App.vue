@@ -19,7 +19,12 @@ export default {
       active: 0
     };
   },
-  methods: {},
+  methods: {
+    async init () {
+      let res = await this.$get('/account/login?token=11111');
+      console.log(res);
+    }
+  },
   watch: {
     $route: {
       handler: function(val) {
@@ -31,6 +36,9 @@ export default {
       },
       immediate: true
     }
+  },
+  mounted() {
+    this.init();
   }
 };
 </script>

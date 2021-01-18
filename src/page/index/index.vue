@@ -20,8 +20,8 @@
     </van-grid>
     <van-tabs v-model="active" swipeable color="#fbe752">
       <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
-        <ul class="machine">
-          <li v-for="row in item.arr" :key="row.id" @click="boxClick(item, row)">
+        <van-row class="machine" gutter="10">
+          <van-col :span="12" v-for="row in item.arr" :key="row.id" @click="boxClick(item, row)">
             <div class="machine-box">
               <van-image class="machine-box-image" :src="require('../../assets/cat.jpeg')" fit="cover" />
               <div class="machine-box-money">
@@ -33,8 +33,8 @@
               <div class="machine-bottom-tab">{{ row.statusId ? "游戏中" : "空闲中" }}</div>
               <div>一只猫</div>
             </div>
-          </li>
-        </ul>
+          </van-col>
+        </van-row>
       </van-tab>
     </van-tabs>
   </div>
@@ -162,9 +162,6 @@ export default {
     padding: 10px;
     flex-wrap: wrap;
     border-top: 2px solid $pro-color;
-    li {
-      width: 50%;
-    }
     &-box {
       border: 3px solid $pro-color;
       border-radius: 5px;

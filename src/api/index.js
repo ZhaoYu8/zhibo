@@ -1,7 +1,6 @@
-let baseURL = process.env.NODE_ENV === "development" ? "api/" : "http://115.159.182.249:5000/";
-let url = "";
+let baseURL = process.env.NODE_ENV === "development" ? "api/" : "/";
 let instance = axios.create({
-  baseURL: url || baseURL,
+  baseURL: baseURL,
   timeout: 15000,
   responseType: "json",
   validateStatus(status) {
