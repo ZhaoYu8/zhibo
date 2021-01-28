@@ -10,7 +10,7 @@
         <div class="recharge-box-button-tab">砖石</div>
       </div>
       <div class="card">
-        <rechargeCard :item="arr" col="45%"></rechargeCard>
+        <rechargeCard :item="arr" col="47%"></rechargeCard>
       </div>
     </div>
   </van-popup>
@@ -40,7 +40,8 @@ export default {
     }
   },
   computed: {},
-  mounted() {},
+  mounted() {
+  },
   methods: {
     close() {
       this.$emit("input", this.show);

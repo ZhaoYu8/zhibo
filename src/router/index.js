@@ -35,6 +35,11 @@ const routes = [
     path: "/doll", // 娃娃机
     name: "doll",
     component: () => import(/* webpackChunkName: "doll" */ "../page/doll/index.vue")
+  },
+  {
+    path: "/pay", // 支付页
+    name: "pay",
+    component: () => import(/* webpackChunkName: "pay" */ "../page/pay/index.vue")
   }
 ];
 

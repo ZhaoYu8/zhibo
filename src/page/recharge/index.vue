@@ -26,10 +26,11 @@ export default {
             { type: 1, money: 888, num: 8880, bestowNum: 12880 },
             { type: 1, money: 1888, num: 18880, bestowNum: 300000 }
           ]
-        },
-        { label: "砖石" }
+        }
       ]
     };
+  },
+  mounted() {
   }
 };
 </script>

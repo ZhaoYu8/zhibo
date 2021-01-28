@@ -7,6 +7,7 @@ let instance = axios.create({
     return status === 200;
   }
 });
+
 // 拦截请求
 instance.interceptors.request.use(
   (config) => {

@@ -1,17 +1,13 @@
 <template>
   <div class="recharge-card">
-    <div
-      v-for="r in item"
-      :key="r.moeny"
-      class="recharge-card-coins"
-      :style="{ width: col, '--index': num }"
-      :class="{ 'recharge-card-active': r.type === 2 }"
-    >
-      <div class="active" v-if="r.type === 2"><van-icon name="point-gift-o" class="icon" />活动</div>
-      <div class="num">{{ r.num }}币</div>
-      <div class="bestowNum" v-if="r.bestowNum">送{{ r.bestowNum }}熊猫币</div>
-      <div class="money">￥ {{ r.money }}.00</div>
-    </div>
+    <a :href="href">
+      <div v-for="r in item" :key="r.moeny" class="recharge-card-coins" :style="{ width: col, '--index': num }" :class="{ 'recharge-card-active': r.type === 2 }">
+        <div class="active" v-if="r.type === 2"><van-icon name="point-gift-o" class="icon" />活动</div>
+        <div class="num">{{ r.num }}币</div>
+        <div class="bestowNum" v-if="r.bestowNum">送{{ r.bestowNum }}熊猫币</div>
+        <div class="money">￥ {{ r.money }}.00</div>
+      </div>
+    </a>
   </div>
 </template>
 
@@ -32,7 +28,9 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      href: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&connect_redirect=1#wechat_redirec`
+    };
   }
 };
 </script>
@@ -46,7 +44,7 @@ export default {
     flex-direction: column;
     align-items: center;
     height: 100px;
-    margin-right: 5%;
+    margin-right: 3%;
     margin-bottom: 20px;
     border-radius: 8px;
     background-color: #fff;
