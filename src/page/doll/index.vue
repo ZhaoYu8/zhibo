@@ -35,7 +35,6 @@
 <script>
 import Video from "../../components/common/video";
 import { MESSAGE_TYPE } from "vue-baberrage";
-import { throttle } from "../../common/js/global";
 export default {
   data() {
     return {
@@ -43,10 +42,10 @@ export default {
       rechargeShow: false,
       status: {},
       userId: 0,
-      getThrottle: throttle(() => {
+      getThrottle: this.$global.throttle(() => {
         this.QueryPrize();
       }, 3000),
-      pushCurrency: throttle(() => {
+      pushCurrency: this.$global.throttle(() => {
         this.push();
       }, 300)
     };
@@ -123,7 +122,7 @@ export default {
       margin-left: 10px;
       display: inline-flex;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
       line-height: 18px;
       li {
         display: inline-flex;

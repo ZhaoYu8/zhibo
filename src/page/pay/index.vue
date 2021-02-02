@@ -23,7 +23,6 @@ export default {
         code: this.code
       });
       let row = JSON.parse(res.data.result);
-      console.log(row.appId);
       WeixinJSBridge.invoke(
         "getBrandWCPayRequest",
         {

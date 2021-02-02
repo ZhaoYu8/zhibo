@@ -36,7 +36,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .recharge-card {
-  margin: 20px 10px;
+  margin: 20px 10px 0;
   overflow: hidden;
   &-coins {
     float: left;

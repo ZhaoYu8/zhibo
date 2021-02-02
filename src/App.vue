@@ -12,9 +12,9 @@ export default {
     return {
       arr: [
         { name: "首页", icon: "home-o", url: "index" },
-        { name: "排行", icon: "fire-o", url: "ranking" },
+        // { name: "排行", icon: "fire-o", url: "ranking" },
         { name: "充值", icon: "balance-pay", url: "recharge" },
-        { name: "我的", icon: "user-circle-o", url: "me" }
+        // { name: "我的", icon: "user-circle-o", url: "me" }
       ],
       active: 0
     };

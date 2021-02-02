@@ -4,7 +4,7 @@
       <slot></slot>
     </div>
     <ul class="header-money">
-      <li class="flex">
+      <li class="flex" @click="type = true">
         <van-icon name="gem" class="gem" />
         <span>100</span>
         <div class="header-money-button">充值</div>
@@ -12,16 +12,20 @@
       <li class="flex">
         <van-icon name="gold-coin" class="gold" />
         <span>200</span>
-        <div class="header-money-button">充值</div>
       </li>
     </ul>
+    <recharge v-model="type" :show="type"/>
   </header>
 </template>
 <script>
+import recharge from "./recharge";
 export default {
+  components: { recharge },
   naem: "header",
   data() {
-    return {};
+    return {
+      type: false
+    };
   },
   props: {},
   computed: {},
@@ -55,9 +59,11 @@ export default {
     @extend .flex;
     li {
       background-color: rgba(0, 0, 0, 0.4);
+      padding: 0 10px;
       margin-left: 10px;
       border-radius: 20px;
       overflow: hidden;
+      height: 28px;
       font-size: 12px;
       padding-left: 10px;
       color: #fff;
@@ -70,6 +76,7 @@ export default {
       padding: 5px 10px;
       white-space: nowrap;
       margin-left: 5px;
+      margin-right: -10px;
     }
   }
 }

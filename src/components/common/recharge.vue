@@ -5,10 +5,6 @@
       <van-button round type="info" :class="{ active: activeKey === 1 }" size="small" @click="activeKey = 1">兑换</van-button>
     </div>
     <div class="recharge-box">
-      <div class="recharge-box-button">
-        <div class="recharge-box-button-tab">熊猫币</div>
-        <div class="recharge-box-button-tab">砖石</div>
-      </div>
       <div class="card">
         <rechargeCard :item="arr" col="47%"></rechargeCard>
       </div>
@@ -97,9 +93,8 @@ $b-c: #ccc;
       }
     }
     .card {
-      margin-left: 58px;
       border-radius: 10px;
-      margin-right: 10px;
+      margin:0 10px;
       overflow-y: auto;
       border: 2px solid #ccc;
       background-color: $pro-color;

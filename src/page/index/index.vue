@@ -8,7 +8,7 @@
         </van-swipe-item>
       </van-swipe>
     </div>
-    <van-grid :column-num="5" class="grid">
+    <!-- <van-grid :column-num="5" class="grid">
       <van-grid-item v-for="item in arr" :key="item.name" icon-prefix="my-icon" icon="gengduo" :text="item.name">
         <template #icon>
           <Icon :icon="`#${item.icon}`"></Icon>
@@ -17,7 +17,7 @@
           <div class="mt-10 f-b">{{ item.name }}</div>
         </template>
       </van-grid-item>
-    </van-grid>
+    </van-grid> -->
     <van-tabs v-model="active" swipeable color="#fbe752">
       <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
         <van-row class="machine" gutter="10">
@@ -83,6 +83,7 @@ export default {
   },
   methods: {
     async init() {
+      this.$global.post("user/info?token=5c76mrpir26a2vl2r8ru4reu8ll6pux0");
       let res = await this.$get("coin/list");
       res = res.data.result;
       // isOnline 是否在线 coinType 0 1 2
