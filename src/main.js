@@ -1,5 +1,6 @@
 import App from "./App.vue";
 import router from "./router";
+import store from './store'
 import http from "./api/index";
 import index from "./components/index";
 import "./common/css/common.scss";
@@ -17,5 +18,6 @@ Object.assign(Vue.prototype, {
 
 let vm = new Vue({
   router,
+  store,
   render: (h) => h(App)
 }).$mount("#app");

@@ -1,6 +1,8 @@
 <template>
   <div class="home">
-    <Header> <van-image round class="header-image" :src="require('../../assets/cat.jpeg')" fit="cover" /> <span class="ml-10 f-b">皮皮</span></Header>
+    <Header>
+      <van-image round class="header-image" :src="userData.avatar" fit="cover" /> <span class="ml-10 f-b f-22">{{ userData.nickname }}</span></Header
+    >
     <div class="box-swipe">
       <van-swipe class="swipe" :autoplay="8000" indicator-color="#FB605C">
         <van-swipe-item v-for="(image, index) in images" :key="index">
@@ -47,6 +49,7 @@ export default {
   data() {
     return {
       active: 0,
+      userData: {},
       list: [
         {
           arr: [],
@@ -59,13 +62,13 @@ export default {
           label: "娃娃机",
           coinType: 2,
           url: "doll"
-        },
-        {
-          arr: [],
-          label: "欢乐球",
-          coinType: 3,
-          url: "doll"
         }
+        // {
+        //   arr: [],
+        //   label: "欢乐球",
+        //   coinType: 3,
+        //   url: "doll"
+        // }
       ],
       images: ["https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://img.yzcdn.cn/vant/apple-1.jpg", "https://img.yzcdn.cn/vant/apple-2.jpg"],
       interval: null,
@@ -81,20 +84,36 @@ export default {
   beforeDestroy() {
     clearInterval(this.interval);
   },
+  computed: {
+    user() {
+      return this.$store.state.user.user;
+    }
+  },
   methods: {
     async init() {
-      this.$global.post("user/info?token=5c76mrpir26a2vl2r8ru4reu8ll6pux0");
+      // 查询用户信息
+      let data = await this.$global.post("user/info?token=5c76mrpir26a2vl2r8ru4reu8ll6pux0");
+      this.userData = data.data;
+      this.$store.dispatch("user/updateUser", this.userData);
+      // 查询机器状态
       let res = await this.$get("coin/list");
       res = res.data.result;
       // isOnline 是否在线 coinType 0 1 2
       res.map((r, i) => {
-        this.list[r.coinType].arr.push(r);
+        if (this.list[r.coinType]) this.list[r.coinType].arr.push(r);
       });
 
       // this.list.map((r, i) => {
       //   let o = res.data.result.filter((n) => n.coinId === r.coinId)[0];
       //   this.$set(this.list[i], "statusId", o.statusId);
       // });
+
+      // 积分
+      let point = await this.$global.get(`userPoint/info?userId=${this.user.userId}`);
+      this.$store.dispatch("user/updatePoint", point.data.point);
+      // 游戏币
+      let coin = await this.$global.get(`userCoin/info?userId=${this.user.userId}`);
+      this.$store.dispatch("user/updateCoit", coin.data.num);
     },
     boxClick(item, row) {
       clearInterval(this.interval);

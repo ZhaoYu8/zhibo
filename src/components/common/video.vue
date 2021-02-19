@@ -109,10 +109,10 @@ export default {
           offer.sdp = stringSdpModify;
           peerConnection.setLocalDescription(offer);
 
-          let res = await this.$post(
+          let res = await axios.post(
             "https://webrtc.liveplay.myqcloud.com/webrtc/v1/pullstream",
             {
-              streamurl: this.webrtc,
+              streamurl: 'webrtc://5664.liveplay.myqcloud.com/live/5664_harchar1',
               sessionid: "sessionId_Test",
               clientinfo: "clientinfo_test",
               localsdp: offer
@@ -151,6 +151,7 @@ export default {
 .box {
   position: absolute;
   height: 100%;
+  width: 100%;
   &-play {
     width: 100%;
     text-align: center;

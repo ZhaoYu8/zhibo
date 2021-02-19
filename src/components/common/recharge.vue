@@ -2,7 +2,6 @@
   <van-popup v-model="show" round @close="close" :closeable="true" :safe-area-inset-bottom="true" class="recharge">
     <div class="button">
       <van-button round type="info" :class="{ active: activeKey === 0 }" size="small" @click="activeKey = 0">充值</van-button>
-      <van-button round type="info" :class="{ active: activeKey === 1 }" size="small" @click="activeKey = 1">兑换</van-button>
     </div>
     <div class="recharge-box">
       <div class="card">

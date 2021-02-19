@@ -29,6 +29,7 @@ module.exports = {
   configureWebpack: (config) => {
     config["externals"] = {
       vue: "Vue",
+      Vuex: "Vuex",
       "vue-router": "VueRouter"
     };
   }

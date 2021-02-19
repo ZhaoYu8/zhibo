@@ -6,27 +6,43 @@
     </div>
     <div class="doll-on-line"></div>
     <Video class="doll-video" :webrtc="webrtc" v-if="webrtc"></Video>
-    <div class="doll-footer">
-      <van-icon name="bullhorn-o" color="#ffe000" size="20" />
-      <ul class="doll-footer-info">
-        <li>
-          本次:
-          <div class="doll-footer-info-num">20</div>
-        </li>
-        <li>
-          砖石余额:
-          <div class="doll-footer-info-num">20</div>
-        </li>
-        <li>
-          积分:
-          <div class="doll-footer-info-num">20</div>
-        </li>
-      </ul>
+    <div v-show="playType">
+      <div class="doll-footer">
+        <van-icon name="bullhorn-o" color="#ffe000" size="20" />
+        <ul class="doll-footer-info">
+          <li>
+            本次：
+            <div class="doll-footer-info-num">20</div>
+          </li>
+          <li>
+            砖石余额：
+            <div class="doll-footer-info-num">20</div>
+          </li>
+          <li>
+            积分：
+            <div class="doll-footer-info-num">20</div>
+          </li>
+        </ul>
+      </div>
+      <div class="doll-paly">
+        <img src="../../assets/1.png" alt="" class="photo" />
+        <img src="../../assets/2.png" alt="" class="big-photo" @click="paly" />
+        <img src="../../assets/3.png" alt="" class="photo" @click="recharge" />
+      </div>
     </div>
-    <div class="doll-paly">
-      <img src="../../assets/1.png" alt="" class="photo" />
-      <img src="../../assets/2.png" alt="" class="big-photo" />
-      <img src="../../assets/3.png" alt="" class="photo" @click="recharge" />
+    <div v-show="!playType" class="control">
+      <div class="circle circle1">
+        <van-icon name="play" class="play play1" />
+      </div>
+      <div class="circle circle2">
+        <van-icon name="play" class="play play2" />
+      </div>
+      <div class="circle circle3">
+        <van-icon name="play" class="play play3" />
+      </div>
+      <div class="circle circle4">
+        <van-icon name="play" class="play play4" />
+      </div>
     </div>
     <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
   </div>
@@ -34,10 +50,10 @@
 
 <script>
 import Video from "../../components/common/video";
-import { MESSAGE_TYPE } from "vue-baberrage";
 export default {
   data() {
     return {
+      playType: true,
       webrtc: "",
       rechargeShow: false,
       status: {},
@@ -76,6 +92,9 @@ export default {
     },
     recharge() {
       this.rechargeShow = true;
+    },
+    paly() {
+      this.playType = false;
     }
   }
 };
@@ -147,6 +166,71 @@ export default {
       height: 80px;
       flex: 2;
     }
+  }
+  .control {
+    position: absolute;
+    bottom: 20px;
+    z-index: 1;
+    .circle {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      margin: auto;
+      border: 3px solid #fff;
+      border-radius: 15px;
+      background-color: #ffd01e;
+      .play {
+        color: #fff;
+        font-size: 30px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(-90deg);
+      }
+      .play2 {
+        transform: translate(-50%, -50%) rotate(180deg);
+      }
+      .play3 {
+        transform: translate(-50%, -50%);
+      }
+      .play4 {
+        transform: translate(-50%, -50%) rotate(90deg);
+      }
+    }
+    .circle1 {
+      left: 80px;
+      bottom: 80px;
+    }
+    .circle2 {
+      left: 30px;
+      bottom: 40px;
+    }
+    .circle3 {
+      left: 130px;
+      bottom: 40px;
+    }
+    .circle4 {
+      left: 80px;
+      bottom: 0;
+    }
+    // .circle3 {
+    //   left: 50px;
+    // }
+    // .circle4 {
+    //   left: 50px;
+    // }
+    // .circle2 {
+    //   border-bottom-color: #ffd01e;
+    //   transform: translate(0, 90px) rotate(180deg);
+    // }
+    // .circle3 {
+    //   border-left-color: #ffd01e;
+    //   transform: translate(90px, 0);
+    // }
+    // .circle4 {
+    //   border-right-color: #ffd01e;
+    //   transform: translate(-90px, 0);
+    // }
   }
 }
 </style>

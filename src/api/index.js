@@ -24,40 +24,15 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (res) => {
-    if (res.config.url.indexOf("webrtc")) {
-      return res;
-    }
     if (res.status === 200 && !res.data.success) {
       vant.Notify(res.data.msg || "调用失败！");
     }
     return res;
   },
   (error) => {
-    let errorMessage = "错误，请联系管理员！";
-    if (error.response) {
-      errorMessage = error.response.data.error ? error.response.data.error.message : errorMessage;
-      switch (error.response.status) {
-        case 404:
-          vant.Notify({
-            message: "很抱歉，资源未找到",
-            duration: 4000
-          });
-          break;
-        case 403:
-        case 401:
-          vant.Notify({
-            message: errorMessage,
-            duration: 4000
-          });
-          break;
-        default:
-          vant.Notify({
-            message: errorMessage,
-            duration: 4000
-          });
-          break;
-      }
-      return;
+    let errorMessage = "调用失败！";
+    if (error.response.status) {
+      errorMessage = error.response.data ? error.response.data.error.message : error.response.status + errorMessage;
     }
     vant.Notify({
       message: errorMessage,

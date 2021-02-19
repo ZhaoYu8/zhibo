@@ -1,24 +1,29 @@
 <template>
   <div class="video">
     <div class="video-content">
+      <div class="video-headed">
+        <van-icon name="revoke" class="icon" @click="goBack" size="36" />
+        <van-icon name="chat-o" class="icon" size="36" />
+      </div>
       <div class="video-wrap">
         <Video></Video>
       </div>
       <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
-    </div>
-    <div class="video-box">
-      <div class="video-box-currency">
-        <div class="prize">已投币数： {{ num }}</div>
-        <div class="prize">已获得游戏币： {{ returnNumber }}</div>
-      </div>
-      <div
-        class="video-box-buttons"
-        :class="{
-          disabled: status.pushUserId !== userId && status.statusId
-        }"
-      >
-        <div class="button" @click="pushCurrency">投币</div>
-        <div class="button wiper" @click="wiper">雨刷</div>
+
+      <div class="video-box">
+        <div class="video-box-currency">
+          <div class="prize">已投币数： {{ num }}</div>
+          <div class="prize">已获得游戏币： {{ returnNumber }}</div>
+        </div>
+        <div
+          class="video-box-buttons"
+          :class="{
+            disabled: status.statusId
+          }"
+        >
+          <div class="button" @click="pushCurrency">投币</div>
+          <div class="button wiper" @click="wiper">雨刷</div>
+        </div>
       </div>
     </div>
   </div>
@@ -65,11 +70,10 @@ export default {
         coinId: parseInt(this.$route.query.coinId)
       });
       this.status = res.data.result;
-      this.status.pushUserId = Number(this.status.pushUserId);
     },
     // 投币
     async push() {
-      if (this.status.statusId && this.status.pushUserId !== this.userId) {
+      if (this.status.statusId) {
         this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
@@ -108,9 +112,12 @@ export default {
         clearInterval(this.setPrize);
       }
     },
+    goBack() {
+      this.$router.go(-1);
+    },
     // 雨刷
     async wiper() {
-      if (this.status.statusId && this.status.pushUserId !== this.userId) {
+      if (this.status.statusId) {
         this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
@@ -133,12 +140,23 @@ export default {
   display: flex;
   flex-direction: column;
   .video-content {
-    height: 70%;
+    height: 100%;
     position: relative;
     .baberrage {
       height: 90%;
       top: 5%;
       z-index: -1;
+    }
+    .video-headed {
+      z-index: 2;
+      position: absolute;
+      box-sizing: border-box;
+      padding: 0 20px;
+      top: 4%;
+      width: 100%;
+      display: flex;
+      color: #fff;
+      justify-content: space-between;
     }
     .video-wrap {
       height: 100%;
@@ -151,60 +169,63 @@ export default {
         transform: translateY(-50%) translateX(-50%) rotateZ(90deg);
       }
     }
-  }
-  &-box {
-    flex-grow: 1;
-    display: inline-flex;
-    flex-direction: column;
-    &-currency {
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      margin-left: 5%;
-      .prize {
-        font-size: 12px;
-        color: #000000;
-        background-color: #ff9d75;
-        padding: 5px 20px;
-        border-radius: 13px;
-        margin-right: 10px;
-      }
-    }
-    &-buttons {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-grow: 1;
-      margin: 0 5%;
-      .button {
+    .video-box {
+      width: 100%;
+      height: 20%;
+      display: inline-flex;
+      flex-direction: column;
+      position: absolute;
+      bottom: 0;
+      &-currency {
+        flex-grow: 1;
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 45%;
-        padding: 18px 0;
-        font-size: 18px;
-        border-radius: 8px;
-        outline: none;
-        background-color: #ff628f;
-        color: #fff;
-        transition: all 0.2s;
-        box-shadow: 0 6px 0 #00000030;
-        &:active {
-          box-shadow: 0 3px 0 #00000030;
-          transform: translate3d(0, 3px, 0);
+        margin-left: 5%;
+        .prize {
+          font-size: 12px;
+          color: #000000;
+          background-color: #ff9d75;
+          padding: 5px 20px;
+          border-radius: 13px;
+          margin-right: 10px;
         }
       }
-      .wiper {
-        background-color: #45bca9;
+      &-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-grow: 1;
+        margin: 0 5%;
+        .button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 45%;
+          padding: 18px 0;
+          font-size: 18px;
+          border-radius: 8px;
+          outline: none;
+          background-color: #ff628f;
+          color: #fff;
+          transition: all 0.2s;
+          box-shadow: 0 6px 0 #00000030;
+          &:active {
+            box-shadow: 0 3px 0 #00000030;
+            transform: translate3d(0, 3px, 0);
+          }
+        }
+        .wiper {
+          background-color: #45bca9;
+        }
       }
-    }
-    .disabled {
-      .button {
-        background-color: #d2c1c1fa;
-        box-shadow: 0 0 0;
-        &:active {
+      .disabled {
+        .button {
+          background-color: #d2c1c1fa;
           box-shadow: 0 0 0;
-          transform: none;
+          &:active {
+            box-shadow: 0 0 0;
+            transform: none;
+          }
         }
       }
     }
