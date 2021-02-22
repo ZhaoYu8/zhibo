@@ -11,14 +11,15 @@ export default {
   data() {
     return {
       code: "",
+      money: "",
       wcpayType: 1,
       href:
-        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&connect_redirect=1#wechat_redirec"
+        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&state="
     };
   },
   methods: {
     refresh() {
-      window.location.href = this.href + this.GetQueryString("money");
+      window.location.href = this.href + this.money;
     },
     GetQueryString(name) {
       let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -31,7 +32,7 @@ export default {
         "h5Pay/prepay",
         {
           code: this.code,
-          actualPrice: this.GetQueryString("money")
+          actualPrice: this.money * 100
         },
         true
       );
@@ -65,6 +66,8 @@ export default {
   },
   mounted() {
     this.code = this.GetQueryString("code");
+    console.log(window.location.href);
+    this.money = this.GetQueryString("state");
     this.$nextTick(() => {
       this.pay();
     });

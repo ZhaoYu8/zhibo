@@ -44,9 +44,11 @@ export default {
   justify-content: space-between;
 }
 .header {
+  position: relative;
   height: 40px;
   margin-bottom: 10px;
   @extend .flex;
+  z-index: 20;
   &-image {
     width: 36px;
     height: 36px;

@@ -1,7 +1,7 @@
 <template>
-  <div class="box">
+  <div class="video" @click="voice">
     <transition name="fade">
-      <video v-show="toggle" :id="streamId" class="video" style="object-fit: cover;" :style="{ top: type ? '0' : '-100%' }" muted autoplay playsinline width="100%" height="100%"></video>
+      <video v-show="toggle" :id="streamId" class="video-main" style="object-fit: cover;" :style="{ top: type ? '0' : '-100%' }" muted autoplay playsinline width="100%" height="100%"></video>
     </transition>
   </div>
 </template>
@@ -43,6 +43,10 @@ export default {
     }
   },
   methods: {
+    voice() {
+      let video = document.getElementById(this.streamId);
+      video.muted = false;
+    },
     play() {
       let video = document.getElementById(this.streamId);
       video
@@ -146,8 +150,12 @@ export default {
     });
     document.body.addEventListener(
       "click",
-      () => {
+      (val) => {
+        console.log(val);
         this.play();
+        if (!this.type) return;
+        let video = document.getElementById(this.streamId);
+        video.muted = false;
       },
       true
     );
@@ -155,7 +163,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.box {
+.video {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -168,12 +176,12 @@ export default {
     transform: translate(-50%, -50%);
     font-size: 16px;
   }
-}
-.video {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  z-index: 1;
+  &-main {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+  }
 }
 .fade-leave-active {
   transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
