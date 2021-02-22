@@ -5,9 +5,6 @@
         <van-icon name="revoke" class="icon" @click="goBack" size="36" />
         <van-icon name="chat-o" class="icon" size="36" />
       </div>
-      <div class="video-wrap">
-        <Video></Video>
-      </div>
       <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
 
       <div class="video-box">
@@ -30,7 +27,6 @@
 </template>
 
 <script>
-import Video from "../../components/common/video";
 import { MESSAGE_TYPE } from "vue-baberrage";
 export default {
   data() {
@@ -51,7 +47,6 @@ export default {
       }, 300)
     };
   },
-  components: { Video },
   beforeDestroy() {
     clearInterval(this.interVal);
     clearInterval(this.setPrize);
@@ -135,7 +130,6 @@ export default {
 .video {
   overflow: hidden;
   height: 100%;
-  z-index: 11;
   background-color: #ffeb94;
   display: flex;
   flex-direction: column;
@@ -158,18 +152,8 @@ export default {
       color: #fff;
       justify-content: space-between;
     }
-    .video-wrap {
-      height: 100%;
-      position: relative;
-      overflow: hidden;
-      #video {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translateY(-50%) translateX(-50%) rotateZ(90deg);
-      }
-    }
     .video-box {
+      z-index: 2;
       width: 100%;
       height: 20%;
       display: inline-flex;

@@ -46,3 +46,7 @@ body {
 .f-22 {
   font-size: 22px;
 }
+.van-hairline--top-bottom::after,
+.van-hairline-unset--top-bottom::after {
+  border: 0;
+}

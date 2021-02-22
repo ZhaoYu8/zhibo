@@ -1,9 +1,9 @@
 <template>
   <div class="pay">
     <div class="pay-title">
-      <div class="loading-indicator">支付订单创建成功<span></span></div>
+      <div class="loading-indicator">支付订单创建成功,请支付<span></span></div>
     </div>
-    <van-button @click="refresh" size="mini" type="primary">刷新支付</van-button>
+    <van-button @click="refresh" type="primary" v-if="wcpayType !== 1">刷新支付</van-button>
   </div>
 </template>
 <script>
@@ -11,13 +11,14 @@ export default {
   data() {
     return {
       code: "",
+      wcpayType: 1,
       href:
         "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&connect_redirect=1#wechat_redirec"
     };
   },
   methods: {
     refresh() {
-      window.location.href = this.href;
+      window.location.href = this.href + this.GetQueryString("money");
     },
     GetQueryString(name) {
       let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -30,7 +31,7 @@ export default {
         "h5Pay/prepay",
         {
           code: this.code,
-          actualPrice: 6
+          actualPrice: this.GetQueryString("money")
         },
         true
       );
@@ -45,14 +46,17 @@ export default {
           signType: row.signType, //微信签名方式：
           paySign: row.paySign //微信签名
         },
-        function(data) {
+        (data) => {
           if (data.err_msg == "get_brand_wcpay_request:ok") {
-            console.log("支付成功");
+            this.$toast("支付成功");
+            this.wcpayType = 1;
             //支付成功后跳转的页面
           } else if (data.err_msg == "get_brand_wcpay_request:cancel") {
-            console.log("支付取消");
+            this.wcpayType = 2;
+            this.$toast("支付取消");
           } else if (data.err_msg == "get_brand_wcpay_request:fail") {
-            console.log("支付失败");
+            this.wcpayType = 3;
+            this.$toast("支付失败");
             WeixinJSBridge.call("closeWindow");
           } //使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok,但并不保证它绝对可靠。
         }

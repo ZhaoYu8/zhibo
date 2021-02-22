@@ -5,7 +5,7 @@
     </div>
     <div class="recharge-box">
       <div class="card">
-        <rechargeCard :item="arr" col="47%"></rechargeCard>
+        <rechargeCard :item="arr" col="47.5%" num="2"></rechargeCard>
       </div>
     </div>
   </van-popup>
@@ -16,16 +16,7 @@ export default {
   data() {
     return {
       activeKey: 0,
-      arr: [
-        { type: 2, money: 202, num: 6088, bestowNum: 0 },
-        { type: 2, money: 2020, num: 70888, bestowNum: 0 },
-        { type: 1, money: 6, num: 60, bestowNum: 0 },
-        { type: 1, money: 28, num: 280, bestowNum: 100 },
-        { type: 1, money: 98, num: 980, bestowNum: 980 },
-        { type: 1, money: 288, num: 2880, bestowNum: 3280 },
-        { type: 1, money: 888, num: 8880, bestowNum: 12880 },
-        { type: 1, money: 1888, num: 18880, bestowNum: 300000 }
-      ]
+      arr: []
     };
   },
   props: {
@@ -35,8 +26,41 @@ export default {
     }
   },
   computed: {},
-  mounted() {
+  computed: {
+    user() {
+      let recharge = this.$store.state.user.user.recharge;
+      return recharge ? recharge.split("").map((r) => Number(r)) : [];
+    }
   },
+  watch: {
+    user: {
+      handler() {
+        let onceMoney = [
+          { type: 2, money: 5, num: 200, bestowNum: 0 },
+          { type: 2, money: 6, num: 120, bestowNum: 0 },
+          { type: 2, money: 30, num: 600, bestowNum: 0 },
+          { type: 2, money: 50, num: 1000, bestowNum: 0 },
+          { type: 2, money: 100, num: 2000, bestowNum: 500 },
+          { type: 2, money: 200, num: 4000, bestowNum: 1200 },
+          { type: 1, money: 6, num: 30, bestowNum: 5 },
+          { type: 1, money: 30, num: 150, bestowNum: 30 },
+          { type: 1, money: 50, num: 250, bestowNum: 70 },
+          { type: 1, money: 100, num: 500, bestowNum: 200 },
+          { type: 1, money: 200, num: 1000, bestowNum: 500 }
+        ];
+        this.arr = this.user.map((r, i) => {
+          // 5元只有一次
+          if (i === 0) {
+            return onceMoney[i];
+          }
+          return onceMoney[r === 0 ? i : i + 5];
+        });
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  mounted() {},
   methods: {
     close() {
       this.$emit("input", this.show);
@@ -48,7 +72,6 @@ export default {
 $b-c: #ccc;
 .recharge {
   width: 90%;
-  height: 80%;
   display: flex;
   flex-direction: column;
   .button {
@@ -93,7 +116,7 @@ $b-c: #ccc;
     }
     .card {
       border-radius: 10px;
-      margin:0 10px;
+      margin: 0 10px;
       overflow-y: auto;
       border: 2px solid #ccc;
       background-color: $pro-color;

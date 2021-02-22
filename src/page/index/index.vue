@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <Header>
-      <van-image round class="header-image" :src="userData.avatar" fit="cover" /> <span class="ml-10 f-b f-22">{{ userData.nickname }}</span></Header
+      <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="ml-10 f-b f-22">{{ user.nickname }}</span></Header
     >
     <div class="box-swipe">
       <van-swipe class="swipe" :autoplay="8000" indicator-color="#FB605C">
@@ -49,7 +49,6 @@ export default {
   data() {
     return {
       active: 0,
-      userData: {},
       list: [
         {
           arr: [],
@@ -91,10 +90,6 @@ export default {
   },
   methods: {
     async init() {
-      // 查询用户信息
-      let data = await this.$post("user/info", {}, true);
-      this.userData = data.data;
-      this.$store.dispatch("user/updateUser", this.userData);
       // 查询机器状态
       let res = await this.$get("coin/list");
       res = res.data.result;
@@ -108,12 +103,6 @@ export default {
       //   this.$set(this.list[i], "statusId", o.statusId);
       // });
 
-      // 积分
-      let point = await this.$get(`userPoint/info?userId=${this.user.userId}`, {}, true);
-      this.$store.dispatch("user/updatePoint", point.data.point);
-      // 游戏币
-      let coin = await this.$get(`userCoin/info?userId=${this.user.userId}`, {}, true);
-      this.$store.dispatch("user/updateCoit", coin.data.num);
     },
     boxClick(item, row) {
       clearInterval(this.interval);

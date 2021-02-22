@@ -5,9 +5,6 @@
       <van-icon name="chat-o" class="icon" size="36" />
     </div>
     <div class="doll-flip" @click="toggleVideo"><van-icon name="photograph" /></div>
-    <transition name="fade">
-      <Video class="doll-video" :webrtc="webrtc" v-if="webrtc"></Video>
-    </transition>
     <div v-show="playType">
       <div class="doll-footer">
         <van-icon name="bullhorn-o" color="#ffe000" size="20" />
@@ -55,7 +52,6 @@ export default {
     return {
       time: 60 * 1000,
       playType: true,
-      webrtc: "",
       rechargeShow: false,
       status: {},
       userId: 0,
@@ -73,7 +69,6 @@ export default {
   },
   mounted() {
     this.userId = Number(this.$route.query.userId);
-    this.webrtc = this.$route.query.webrtc;
     this.queryStatus();
     this.interVal = setInterval(() => {
       this.queryStatus();
@@ -103,7 +98,7 @@ export default {
     },
     // 调整摄像头
     toggleVideo() {
-      this.webrtc = "";
+      this.$bus.$emit("toggle", "abc");
     }
   }
 };
@@ -279,13 +274,6 @@ export default {
         justify-content: center;
       }
     }
-  }
-  .fade-leave-active {
-    transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
-  }
-  .fade-enter,
-  .fade-leave-to {
-    transform: rotateY(180deg);
   }
 }
 </style>

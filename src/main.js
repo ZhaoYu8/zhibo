@@ -1,6 +1,6 @@
 import App from "./App.vue";
 import router from "./router";
-import store from './store'
+import store from "./store";
 import http from "./api/index";
 import index from "./components/index";
 import "./common/css/common.scss";
@@ -13,10 +13,10 @@ Vue.config.productionTip = false;
 Object.assign(Vue.prototype, {
   $post: http.post,
   $get: http.get,
-  $global: global
+  $global: global,
+  $bus: new Vue()
 });
-
-let vm = new Vue({
+new Vue({
   router,
   store,
   render: (h) => h(App)

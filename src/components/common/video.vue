@@ -1,10 +1,8 @@
 <template>
-  <div class="box" @click="toggle" id="remote-video-wrap">
-    <!-- <div v-html="content" class="video"></div> -->
-    <div v-show="playType" class="box-play">
-      <van-icon name="play-circle" @click="play" color="#fff" size="40" />
-      <div class="c-fff">若不显示，请触摸播放。</div>
-    </div>
+  <div class="box">
+    <transition name="fade">
+      <video v-show="toggle" :id="streamId" class="video" style="object-fit: cover;" :style="{ top: type ? '0' : '-100%' }" muted autoplay playsinline width="100%" height="100%"></video>
+    </transition>
   </div>
 </template>
 
@@ -14,10 +12,11 @@ export default {
   components: {},
   data() {
     return {
-      streamId: Date.now().toString(36),
+      streamId: "onceVideo",
       peerConnection: "",
       content: "",
-      playType: true
+      type: false,
+      toggle: true
     };
   },
   props: {
@@ -26,39 +25,36 @@ export default {
       default: "webrtc://live.yiyuanmaidian.com/game/2"
     }
   },
-  methods: {
-    toggle() {
-      let video = document.getElementById(this.streamId);
-      video.muted = false;
-      if (this.playType) {
-        this.play();
+  watch: {
+    $route: {
+      handler(val) {
+        let video = document.getElementById(this.streamId);
+        if (["doll", "pushLevelDetail"].includes(val.name)) {
+          this.pullStream();
+          this.type = true;
+          this.$nextTick(() => {
+            video.muted = false;
+          });
+        } else {
+          this.type = false;
+          video.muted = true;
+        }
       }
-    },
+    }
+  },
+  methods: {
     play() {
       let video = document.getElementById(this.streamId);
       video
         .play()
         .then(() => {
-          this.playType = false;
           console.log("成功");
         })
         .catch(() => {
-          this.playType = true;
           console.log("失败");
         });
     },
-    // 创建video组件
-    createVideoElement(id) {
-      var videoDiv = document.createElement("div");
-      videoDiv.innerHTML = `<video id="${id}" on-click="toggle" autoplay unmuted playsinline controls width="100%" height="100%"></video>`;
-      document.querySelector("#remote-video-wrap").appendChild(videoDiv);
-      return document.getElementById(id);
-    },
     pullStream() {
-      let video = document.getElementById(this.streamId);
-      if (!video) {
-        video = this.createVideoElement(this.streamId);
-      }
       // 初始化
       this.peerConnection = new RTCPeerConnection(
         {
@@ -80,19 +76,8 @@ export default {
       this.peerCallback();
     },
     peerCallback() {
-      console.log(123);
       let peerConnection = this.peerConnection;
-      peerConnection.onicecandidate = function(e) {
-        console.log("peerConnection.onicecandidate:", e);
-      };
-      peerConnection.onaddstream = function(e) {
-        console.log("peerConnection.onaddstream");
-      };
-      peerConnection.onremovestream = function(e) {
-        console.log("peerConnection.onremovestream");
-      };
       peerConnection.ontrack = (e) => {
-        console.log("peerConnection.ontrack, kind:" + e.track.kind + ",track.id:" + e.track.id);
         let track = e.track;
         if (!peerConnection.stream) {
           peerConnection.streamId = this.streamId;
@@ -137,26 +122,14 @@ export default {
             console.log(`pull stream failed!errCode:${data.errcode}, errmsg:${data.errmsg}`);
             return;
           }
-          var remoteSdp = data.remotesdp;
-          peerConnection.setRemoteDescription(
-            new RTCSessionDescription(remoteSdp),
-            function() {
-              console.log("setRemoteSdp succ!");
-            },
-            function(e) {
-              console.log("setRemoteSdp failed, exception = " + e.message);
-            }
-          );
+          peerConnection.setRemoteDescription(new RTCSessionDescription(data.remotesdp));
         });
     },
     onAddStream(e) {
       let streamId = e.streamId;
       let video = document.getElementById(streamId);
-      if (!video) {
-        video = this.createVideoElement(streamId);
-      }
       video.srcObject = e.stream;
-      // video.muted = true;
+      video.muted = true;
       video.autoplay = true;
       video.playsinline = true;
       this.$nextTick(() => {
@@ -165,7 +138,19 @@ export default {
     }
   },
   mounted() {
-    this.pullStream();
+    this.$bus.$on("toggle", (a) => {
+      this.toggle = false;
+      setTimeout(() => {
+        this.toggle = true;
+      }, 300);
+    });
+    document.body.addEventListener(
+      "click",
+      () => {
+        this.play();
+      },
+      true
+    );
   }
 };
 </script>
@@ -185,6 +170,16 @@ export default {
   }
 }
 .video {
+  position: fixed;
   height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+.fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.fade-enter,
+.fade-leave-to {
+  transform: rotateY(180deg);
 }
 </style>
