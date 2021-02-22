@@ -48,7 +48,7 @@ export default {
 $b-c: #ccc;
 .recharge {
   width: 90%;
-  height: 60%;
+  height: 80%;
   display: flex;
   flex-direction: column;
   .button {

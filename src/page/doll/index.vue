@@ -4,8 +4,10 @@
       <van-icon name="revoke" class="icon" @click="goBack" size="36" />
       <van-icon name="chat-o" class="icon" size="36" />
     </div>
-    <div class="doll-on-line"></div>
-    <Video class="doll-video" :webrtc="webrtc" v-if="webrtc"></Video>
+    <div class="doll-flip" @click="toggleVideo"><van-icon name="photograph" /></div>
+    <transition name="fade">
+      <Video class="doll-video" :webrtc="webrtc" v-if="webrtc"></Video>
+    </transition>
     <div v-show="playType">
       <div class="doll-footer">
         <van-icon name="bullhorn-o" color="#ffe000" size="20" />
@@ -24,24 +26,22 @@
           </li>
         </ul>
       </div>
-      <div class="doll-paly">
+      <div class="doll-play">
         <img src="../../assets/1.png" alt="" class="photo" />
-        <img src="../../assets/2.png" alt="" class="big-photo" @click="paly" />
+        <img src="../../assets/2.png" alt="" class="big-photo" @click="play" />
         <img src="../../assets/3.png" alt="" class="photo" @click="recharge" />
       </div>
     </div>
-    <div v-show="!playType" class="control">
-      <div class="circle circle1">
-        <van-icon name="play" class="play play1" />
+    <!-- 按钮组 -->
+    <div v-if="!playType" class="control">
+      <div class="control-buttons">
+        <div class="circle" :class="'circle' + item" v-for="item in 4" :key="item">
+          <van-icon name="play" class="triangle" :class="'triangle' + item" @click="direction(item)" />
+        </div>
       </div>
-      <div class="circle circle2">
-        <van-icon name="play" class="play play2" />
-      </div>
-      <div class="circle circle3">
-        <van-icon name="play" class="play play3" />
-      </div>
-      <div class="circle circle4">
-        <van-icon name="play" class="play play4" />
+      <div class="play">
+        <div class="play-time"><van-count-down :time="time" format="ss" />S</div>
+        <div class="play-button">GO</div>
       </div>
     </div>
     <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
@@ -53,6 +53,7 @@ import Video from "../../components/common/video";
 export default {
   data() {
     return {
+      time: 60 * 1000,
       playType: true,
       webrtc: "",
       rechargeShow: false,
@@ -93,8 +94,16 @@ export default {
     recharge() {
       this.rechargeShow = true;
     },
-    paly() {
+    play() {
       this.playType = false;
+    },
+    // 调整方向
+    direction(item) {
+      console.log(item);
+    },
+    // 调整摄像头
+    toggleVideo() {
+      this.webrtc = "";
     }
   }
 };
@@ -105,16 +114,32 @@ export default {
   position: relative;
   height: 100%;
   font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   &-headed {
     z-index: 2;
-    position: absolute;
     box-sizing: border-box;
     padding: 0 20px;
-    top: 4%;
     width: 100%;
     display: flex;
     color: #fff;
     justify-content: space-between;
+    margin-top: 20px;
+  }
+  &-flip {
+    position: absolute;
+    top: 40%;
+    right: 0;
+    z-index: 2;
+    background-color: #0b4367;
+    padding: 8px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-size: 25px;
+    margin-right: 10px;
   }
   &-video {
     width: 100%;
@@ -151,7 +176,7 @@ export default {
       }
     }
   }
-  &-paly {
+  &-play {
     position: absolute;
     z-index: 1;
     bottom: 20px;
@@ -168,69 +193,99 @@ export default {
     }
   }
   .control {
-    position: absolute;
     bottom: 20px;
     z-index: 1;
-    .circle {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      margin: auto;
-      border: 3px solid #fff;
-      border-radius: 15px;
-      background-color: #ffd01e;
-      .play {
-        color: #fff;
-        font-size: 30px;
+    display: flex;
+    width: 100%;
+    height: 140px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    &-buttons {
+      position: relative;
+      flex: 1;
+      height: 100%;
+      .circle {
         position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%) rotate(-90deg);
-      }
-      .play2 {
-        transform: translate(-50%, -50%) rotate(180deg);
-      }
-      .play3 {
-        transform: translate(-50%, -50%);
-      }
-      .play4 {
-        transform: translate(-50%, -50%) rotate(90deg);
+        width: 50px;
+        height: 50px;
+        margin: auto;
+        border: 3px solid #fff;
+        border-radius: 15px;
+        background-color: #ffd01e;
+        .triangle {
+          color: #fff;
+          font-size: 30px;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%) rotate(-90deg);
+        }
+        .triangle2 {
+          transform: translate(-50%, -50%) rotate(180deg);
+        }
+        .triangle3 {
+          transform: translate(-50%, -50%);
+        }
+        .triangle4 {
+          transform: translate(-50%, -50%) rotate(90deg);
+        }
       }
     }
     .circle1 {
-      left: 80px;
-      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
     }
     .circle2 {
-      left: 30px;
-      bottom: 40px;
+      left: 50px;
+      transform: translateY(-50%);
+      top: 50%;
     }
     .circle3 {
-      left: 130px;
-      bottom: 40px;
+      right: 50px;
+      transform: translateY(-50%);
+      top: 50%;
     }
     .circle4 {
-      left: 80px;
+      left: 50%;
+      transform: translateX(-50%);
       bottom: 0;
     }
-    // .circle3 {
-    //   left: 50px;
-    // }
-    // .circle4 {
-    //   left: 50px;
-    // }
-    // .circle2 {
-    //   border-bottom-color: #ffd01e;
-    //   transform: translate(0, 90px) rotate(180deg);
-    // }
-    // .circle3 {
-    //   border-left-color: #ffd01e;
-    //   transform: translate(90px, 0);
-    // }
-    // .circle4 {
-    //   border-right-color: #ffd01e;
-    //   transform: translate(-90px, 0);
-    // }
+    .play {
+      z-index: 2;
+      color: #fff;
+      font-size: 28px;
+      margin: 0 30px;
+      &-time {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 32px;
+        .van-count-down {
+          font-size: inherit;
+          color: #fff;
+          text-shadow: 0 2px #af7070;
+        }
+      }
+      &-button {
+        background-color: #39ff76;
+        height: 60px;
+        width: 60px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+  .fade-leave-active {
+    transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+  }
+  .fade-enter,
+  .fade-leave-to {
+    transform: rotateY(180deg);
   }
 }
 </style>

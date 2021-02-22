@@ -8,12 +8,6 @@ let obj = {
         timer = false; // 置空操作
       }, delay);
     };
-  },
-  get(url, data) {
-    return axios.get("https://www.worksp.cn/platform-framework/api/" + url, data);
-  },
-  post(url, data) {
-    return axios.post("https://www.worksp.cn/platform-framework/api/" + url, data);
   }
 };
 export default obj;

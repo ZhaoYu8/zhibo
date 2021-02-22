@@ -1,17 +1,24 @@
 <template>
-  <div>
-    支付中...
+  <div class="pay">
+    <div class="pay-title">
+      <div class="loading-indicator">支付订单创建成功<span></span></div>
+    </div>
+    <van-button @click="refresh" size="mini" type="primary">刷新支付</van-button>
   </div>
 </template>
-
 <script>
 export default {
   data() {
     return {
-      code: ""
+      code: "",
+      href:
+        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&connect_redirect=1#wechat_redirec"
     };
   },
   methods: {
+    refresh() {
+      window.location.href = this.href;
+    },
     GetQueryString(name) {
       let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
       let r = window.location.search.substr(1).match(reg);
@@ -19,10 +26,15 @@ export default {
       return null;
     },
     async pay() {
-      let res = await this.$get("coin/Prepay", {
-        code: this.code
-      });
-      let row = JSON.parse(res.data.result);
+      let res = await this.$get(
+        "h5Pay/prepay",
+        {
+          code: this.code,
+          actualPrice: 6
+        },
+        true
+      );
+      let row = res.data;
       WeixinJSBridge.invoke(
         "getBrandWCPayRequest",
         {
@@ -56,4 +68,34 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.pay {
+  font-size: 20px;
+  padding: 10px;
+}
+.loading-indicator {
+  font-size: 16px;
+  color: #09f;
+  span {
+    display: inline-block;
+    overflow: hidden;
+    height: 1em;
+    line-height: 1;
+    vertical-align: -0.25em;
+    &::after {
+      display: block;
+      white-space: pre-wrap;
+      content: "...\A..\A.";
+      animation: loading 3s infinite step-start both;
+    }
+  }
+}
+@keyframes loading {
+  33% {
+    transform: translate3d(0, -2em, 0);
+  }
+  66% {
+    transform: translate3d(0, -1em, 0);
+  }
+}
+</style>

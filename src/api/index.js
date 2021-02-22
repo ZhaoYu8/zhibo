@@ -11,10 +11,10 @@ let instance = axios.create({
 // 拦截请求
 instance.interceptors.request.use(
   (config) => {
-    // let token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = 'Bearer ' + token;
-    // }
+    let token = localStorage.getItem("token") || "5c76mrpir26a2vl2r8ru4reu8ll6pux0";
+    if (token) {
+      config.headers["X-Nideshop-Token"] = token;
+    }
     return config;
   },
   (error) => {
@@ -24,7 +24,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (res) => {
-    if (res.status === 200 && !res.data.success) {
+    if (res.status === 200 && !res.config.url.includes("www.worksp.cn") && !res.data.success) {
       vant.Notify(res.data.msg || "调用失败！");
     }
     return res;
@@ -42,9 +42,9 @@ instance.interceptors.response.use(
   }
 );
 const request = {
-  post(url, params = {}, custom = true) {
+  post(url, params = {}, custom) {
     if (custom) {
-      url = url;
+      url = `https://www.worksp.cn/platform-framework/api/${url}`;
     }
     return instance.post(url, params, {
       headers: {
@@ -52,7 +52,10 @@ const request = {
       }
     });
   },
-  get(url, params) {
+  get(url, params, custom) {
+    if (custom) {
+      url = `https://www.worksp.cn/platform-framework/api/${url}`;
+    }
     let _params;
     let _paramsarr = [];
     if (Object.is(params, undefined)) {

@@ -1,7 +1,7 @@
 <template>
   <div class="recharge-card">
-    <a :href="href">
-      <div v-for="r in item" :key="r.moeny" class="recharge-card-coins" :style="{ width: col, '--index': num }" :class="{ 'recharge-card-active': r.type === 2 }">
+    <a :href="href" v-for="r in item" :key="r.moeny" >
+      <div class="recharge-card-coins" :style="{ width: col, '--index': num }" :class="{ 'recharge-card-active': r.type === 2 }">
         <div class="active" v-if="r.type === 2"><van-icon name="point-gift-o" class="icon" />活动</div>
         <div class="num">{{ r.num }}币</div>
         <div class="bestowNum" v-if="r.bestowNum">送{{ r.bestowNum }}熊猫币</div>

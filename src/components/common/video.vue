@@ -1,6 +1,6 @@
 <template>
-  <div class="box" @click="toggle">
-    <div v-html="content" class="video"></div>
+  <div class="box" @click="toggle" id="remote-video-wrap">
+    <!-- <div v-html="content" class="video"></div> -->
     <div v-show="playType" class="box-play">
       <van-icon name="play-circle" @click="play" color="#fff" size="40" />
       <div class="c-fff">若不显示，请触摸播放。</div>
@@ -49,7 +49,9 @@ export default {
     },
     // 创建video组件
     createVideoElement(id) {
-      this.content = `<video id="${id}" on-click="toggle" style="object-fit: fill;"  autoplay playsinline width="100%" height="100%"></video>`;
+      var videoDiv = document.createElement("div");
+      videoDiv.innerHTML = `<video id="${id}" on-click="toggle" autoplay unmuted playsinline controls width="100%" height="100%"></video>`;
+      document.querySelector("#remote-video-wrap").appendChild(videoDiv);
       return document.getElementById(id);
     },
     pullStream() {
@@ -78,8 +80,19 @@ export default {
       this.peerCallback();
     },
     peerCallback() {
+      console.log(123);
       let peerConnection = this.peerConnection;
+      peerConnection.onicecandidate = function(e) {
+        console.log("peerConnection.onicecandidate:", e);
+      };
+      peerConnection.onaddstream = function(e) {
+        console.log("peerConnection.onaddstream");
+      };
+      peerConnection.onremovestream = function(e) {
+        console.log("peerConnection.onremovestream");
+      };
       peerConnection.ontrack = (e) => {
+        console.log("peerConnection.ontrack, kind:" + e.track.kind + ",track.id:" + e.track.id);
         let track = e.track;
         if (!peerConnection.stream) {
           peerConnection.streamId = this.streamId;
@@ -112,7 +125,7 @@ export default {
           let res = await axios.post(
             "https://webrtc.liveplay.myqcloud.com/webrtc/v1/pullstream",
             {
-              streamurl: 'webrtc://5664.liveplay.myqcloud.com/live/5664_harchar1',
+              streamurl: "webrtc://5664.liveplay.myqcloud.com/live/5664_harchar1",
               sessionid: "sessionId_Test",
               clientinfo: "clientinfo_test",
               localsdp: offer
@@ -124,7 +137,16 @@ export default {
             console.log(`pull stream failed!errCode:${data.errcode}, errmsg:${data.errmsg}`);
             return;
           }
-          peerConnection.setRemoteDescription(new RTCSessionDescription(data.remotesdp));
+          var remoteSdp = data.remotesdp;
+          peerConnection.setRemoteDescription(
+            new RTCSessionDescription(remoteSdp),
+            function() {
+              console.log("setRemoteSdp succ!");
+            },
+            function(e) {
+              console.log("setRemoteSdp failed, exception = " + e.message);
+            }
+          );
         });
     },
     onAddStream(e) {
@@ -134,7 +156,7 @@ export default {
         video = this.createVideoElement(streamId);
       }
       video.srcObject = e.stream;
-      video.muted = true;
+      // video.muted = true;
       video.autoplay = true;
       video.playsinline = true;
       this.$nextTick(() => {

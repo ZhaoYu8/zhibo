@@ -92,7 +92,7 @@ export default {
   methods: {
     async init() {
       // 查询用户信息
-      let data = await this.$global.post("user/info?token=5c76mrpir26a2vl2r8ru4reu8ll6pux0");
+      let data = await this.$post("user/info", {}, true);
       this.userData = data.data;
       this.$store.dispatch("user/updateUser", this.userData);
       // 查询机器状态
@@ -109,10 +109,10 @@ export default {
       // });
 
       // 积分
-      let point = await this.$global.get(`userPoint/info?userId=${this.user.userId}`);
+      let point = await this.$get(`userPoint/info?userId=${this.user.userId}`, {}, true);
       this.$store.dispatch("user/updatePoint", point.data.point);
       // 游戏币
-      let coin = await this.$global.get(`userCoin/info?userId=${this.user.userId}`);
+      let coin = await this.$get(`userCoin/info?userId=${this.user.userId}`, {}, true);
       this.$store.dispatch("user/updateCoit", coin.data.num);
     },
     boxClick(item, row) {
