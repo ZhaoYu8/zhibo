@@ -1,7 +1,7 @@
 <template>
   <div class="recharge-card">
     <a :href="href + `&state=` + r.money" v-for="(r, i) in item" :key="r.moeny">
-      <div class="recharge-card-coins" :style="{ width: col, 'margin-right': ((i + 1) % num) === 0 ? 0 : '5%' }" :class="{ 'recharge-card-active': r.type === 2 }">
+      <div class="recharge-card-coins" :style="{ width: col, 'margin-right': (i + 1) % num === 0 ? 0 : '5%' }" :class="{ 'recharge-card-active': r.type === 2 }">
         <div class="active" v-if="r.type === 2"><van-icon name="point-gift-o" class="icon" />首充</div>
         <div class="num">{{ r.num }}币</div>
         <div class="bestowNum" v-if="r.bestowNum">送{{ r.bestowNum }}币</div>
@@ -32,8 +32,7 @@ export default {
       href: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base`
     };
   },
-  methods: {
-  }
+  methods: {}
 };
 </script>
 <style lang="scss" scoped>
@@ -52,9 +51,9 @@ export default {
     background-color: #fff;
     position: relative;
     overflow: hidden;
+    justify-content: center;
     .num {
       font-size: 16px;
-      margin-top: 30px;
       font-weight: bold;
     }
     .bestowNum {

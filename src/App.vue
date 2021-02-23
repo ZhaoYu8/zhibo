@@ -22,7 +22,33 @@ export default {
     };
   },
   components: { Video },
-  methods: {},
+  computed: {
+    user() {
+      return this.$store.state.user.user;
+    }
+  },
+  methods: {
+    async init() {
+      await this.queryUserInfo();
+      await this.queryUserPoint();
+      await this.queryUserCoin();
+    },
+    // 查询用户信息
+    async queryUserInfo() {
+      let data = await this.$post("user/info", {}, true);
+      this.$store.dispatch("user/updateUser", data.data);
+    },
+    // 查询用户积分
+    async queryUserPoint() {
+      let point = await this.$get(`userPoint/info?userId=${this.user.userId}`, {}, true);
+      this.$store.dispatch("user/updatePoint", point.data.point);
+    },
+    // 查询用户游戏币
+    async queryUserCoin() {
+      let coin = await this.$get(`userCoin/info?userId=${this.user.userId}`, {}, true);
+      this.$store.dispatch("user/updateCoin", coin.data.num);
+    }
+  },
   watch: {
     $route: {
       handler: function(val) {
@@ -35,17 +61,12 @@ export default {
       immediate: true
     }
   },
-  async mounted() {
-    // 查询用户信息
-    let data = await this.$post("user/info", {}, true);
-    data = data.data;
-    this.$store.dispatch("user/updateUser", data);
-    // 积分
-    let point = await this.$get(`userPoint/info?userId=${data.userId}`, {}, true);
-    this.$store.dispatch("user/updatePoint", point.data.point);
-    // 游戏币
-    let coin = await this.$get(`userCoin/info?userId=${data.userId}`, {}, true);
-    this.$store.dispatch("user/updateCoit", coin.data.num);
+  mounted() {
+    this.init();
+    this.$bus.$on("globalInit", () => {
+      this.queryUserInfo();
+      this.queryUserCoin();
+    });
   }
 };
 </script>

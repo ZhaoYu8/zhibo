@@ -43,13 +43,17 @@ export default {
           { type: 1, money: 100, num: 500, bestowNum: 200 },
           { type: 1, money: 200, num: 1000, bestowNum: 500 }
         ];
-        this.arr[0].data = this.user.map((r, i) => {
+        let arr = [];
+        this.user.map((r, i) => {
           // 5元只有一次
           if (i === 0) {
-            return onceMoney[i];
+            if (r === 0) arr[i] = onceMoney[i];
+            return;
           }
-          return onceMoney[r === 0 ? i : i + 5];
+          arr[i] = onceMoney[r === 0 ? i : i + 5];
         });
+        if (!arr[0]) arr = arr.slice(1);
+        this.arr[0].data = arr;
       },
       immediate: true,
       deep: true

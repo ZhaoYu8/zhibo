@@ -1,9 +1,15 @@
 <template>
   <div class="pay">
-    <div class="pay-title">
+    <div class="pay-title" v-show="wcpayType === 1">
       <div class="loading-indicator">支付订单创建成功,请支付<span></span></div>
     </div>
-    <van-button @click="refresh" type="primary" v-if="wcpayType !== 1">刷新支付</van-button>
+    <div v-show="wcpayType !== 1">
+      <div class="loading-indicator loading-error">支付失败</div>
+    </div>
+    <div v-if="payCount">
+      <div class="loading-indicator loading-error">第{{ payCount }}次查询支付结果<span></span></div>
+    </div>
+    <van-button @click="refresh" type="primary" v-if="wcpayType !== 1">再次支付</van-button>
   </div>
 </template>
 <script>
@@ -13,13 +19,14 @@ export default {
       code: "",
       money: "",
       wcpayType: 1,
-      href:
-        "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&state="
+      payCount: 0,
+      prepayData: {}, // 请求到的参数合集
+      href: "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&state="
     };
   },
   methods: {
     refresh() {
-      window.location.href = this.href + this.money;
+      window.location.replace(this.href + this.money);
     },
     GetQueryString(name) {
       let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -27,16 +34,58 @@ export default {
       if (r != null) return unescape(r[2]);
       return null;
     },
+    payIsSuccess() {
+      return new Promise((resolve) => {
+        if (this.payCount % 5) {
+          resolve(true);
+        }
+        this.$dialog
+          .confirm({
+            title: "提醒",
+            cancelButtonText: "继续",
+            confirmButtonText: "返回",
+            message: `检测到已经连续${this.payCount}次查询结果都没有支付成功！你可以先返回！联系客服！`
+          })
+          .then(() => {
+            resolve(false);
+          })
+          .catch(() => {
+            resolve(true);
+          });
+      });
+    },
+    async payQuery() {
+      this.payCount = this.payCount + 1;
+      let res = await this.$post(`h5Pay/query?out_trade_no=${this.prepayData.out_trade_no}`, {}, true);
+      if (res.errno === 0) {
+        this.$toast("支付成功,2秒后即将返回！");
+        this.$bus.$emit("globalInit");
+        setTimeout(() => {
+          this.$router.go(-1);
+        }, 1000);
+        return;
+      }
+      let type = await this.payIsSuccess();
+      if (type) {
+        this.$toast(`第${this.payCount}次查询支付...`);
+        setTimeout(() => {
+          this.payQuery();
+        }, 2000);
+        return;
+      }
+      this.$router.go(-1);
+    },
     async pay() {
       let res = await this.$get(
         "h5Pay/prepay",
         {
           code: this.code,
-          actualPrice: this.money * 100
+          actualPrice: this.money
         },
         true
       );
       let row = res.data;
+      this.prepayData = row;
       WeixinJSBridge.invoke(
         "getBrandWCPayRequest",
         {
@@ -49,13 +98,14 @@ export default {
         },
         (data) => {
           if (data.err_msg == "get_brand_wcpay_request:ok") {
-            this.$toast("支付成功");
+            this.payQuery();
             this.wcpayType = 1;
             //支付成功后跳转的页面
           } else if (data.err_msg == "get_brand_wcpay_request:cancel") {
             this.wcpayType = 2;
             this.$toast("支付取消");
           } else if (data.err_msg == "get_brand_wcpay_request:fail") {
+            this.payQuery();
             this.wcpayType = 3;
             this.$toast("支付失败");
             WeixinJSBridge.call("closeWindow");
@@ -66,8 +116,8 @@ export default {
   },
   mounted() {
     this.code = this.GetQueryString("code");
-    console.log(window.location.href);
     this.money = this.GetQueryString("state");
+    console.log(this.money);
     this.$nextTick(() => {
       this.pay();
     });
@@ -78,11 +128,14 @@ export default {
 <style lang="scss" scoped>
 .pay {
   font-size: 20px;
-  padding: 10px;
 }
 .loading-indicator {
   font-size: 16px;
-  color: #09f;
+  color: $pro-text-color;
+  padding: 20px 10px;
+  background-color: #f7f8fa;
+  box-shadow: 0 2px #f7f8fa;
+  margin-bottom: 20px;
   span {
     display: inline-block;
     overflow: hidden;
@@ -96,6 +149,10 @@ export default {
       animation: loading 3s infinite step-start both;
     }
   }
+}
+.loading-error {
+  background-color: #ff1717;
+  color: #fff;
 }
 @keyframes loading {
   33% {
