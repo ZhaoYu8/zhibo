@@ -62,6 +62,16 @@ export default {
     }
   },
   mounted() {
+    window.addEventListener(
+      "popstate",
+      () => {
+        if (localStorage.getItem("pay")) {
+          this.init();
+        }
+        localStorage.setItem("pay", false);
+      },
+      false
+    );
     this.init();
     this.$bus.$on("globalInit", () => {
       this.queryUserInfo();
@@ -76,6 +86,7 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
   .router {
     flex: 1;
     height: inherit;

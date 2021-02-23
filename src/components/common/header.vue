@@ -6,12 +6,12 @@
     <ul class="header-money">
       <li class="flex" @click="type = true">
         <van-icon name="gem" class="gem" />
-        <span>{{ $store.state.user.coin }}</span>
+        <span>{{ user.coin }}</span>
         <div class="header-money-button">充值</div>
       </li>
       <li class="flex">
         <van-icon name="gold-coin" class="gold" />
-        <span>{{ $store.state.user.point }}</span>
+        <span>{{ user.point }}</span>
       </li>
     </ul>
     <recharge v-model="type" :show="type" />
@@ -33,7 +33,13 @@ export default {
     }
   },
   props: {},
-  computed: {},
+  watch: {
+    $route: {
+      handler: function(val) {
+      },
+      immediate: true
+    }
+  },
   mounted() {}
 };
 </script>

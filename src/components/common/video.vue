@@ -1,5 +1,5 @@
 <template>
-  <div class="video" @click="voice">
+  <div class="video" @click="voice" :style="{ top: type ? '0' : '-100%' }">
     <transition name="fade">
       <video v-show="toggle" :id="streamId" class="video-main" style="object-fit: cover;" :style="{ top: type ? '0' : '-100%' }" muted autoplay playsinline width="100%" height="100%"></video>
     </transition>
@@ -16,7 +16,8 @@ export default {
       peerConnection: "",
       content: "",
       type: false,
-      toggle: true
+      toggle: true,
+      first: false
     };
   },
   props: {
@@ -150,9 +151,11 @@ export default {
     });
     document.body.addEventListener(
       "click",
-      (val) => {
-        console.log(val);
-        this.play();
+      () => {
+        if (!this.first) {
+          this.play();
+          this.first = true;
+        }
         if (!this.type) return;
         let video = document.getElementById(this.streamId);
         video.muted = false;

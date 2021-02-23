@@ -55,16 +55,21 @@ export default {
       });
     },
     async payQuery() {
-      this.payCount = this.payCount + 1;
       let res = await this.$post(`h5Pay/query?out_trade_no=${this.prepayData.out_trade_no}`, {}, true);
-      if (res.errno === 0) {
-        this.$toast("支付成功,2秒后即将返回！");
-        this.$bus.$emit("globalInit");
-        setTimeout(() => {
-          this.$router.go(-1);
-        }, 1000);
+      if (res.data.errno === 0) {
+        localStorage.setItem("pay", true);
+        this.$dialog
+          .alert({
+            title: "成功",
+            message: "支付成功,点击返回！",
+            confirmButtonColor: "#07c160"
+          })
+          .then(() => {
+            this.$router.go(-1);
+          });
         return;
       }
+      this.payCount = this.payCount + 1;
       let type = await this.payIsSuccess();
       if (type) {
         this.$toast(`第${this.payCount}次查询支付...`);
@@ -117,7 +122,6 @@ export default {
   mounted() {
     this.code = this.GetQueryString("code");
     this.money = this.GetQueryString("state");
-    console.log(this.money);
     this.$nextTick(() => {
       this.pay();
     });
