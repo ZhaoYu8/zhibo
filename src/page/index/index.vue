@@ -20,20 +20,28 @@
         </template>
       </van-grid-item>
     </van-grid> -->
-    <van-tabs v-model="active" swipeable color="#fbe752">
+    <van-tabs v-model="active" swipeable color="#fbe752" class="box-tabs">
       <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
         <van-row class="machine" gutter="10">
-          <van-col :span="12" v-for="row in item.arr" :key="row.id" @click="boxClick(item, row)">
+          <van-col :span="24" v-for="row in item.arr" :key="row.id">
             <div class="machine-box">
-              <van-image class="machine-box-image" :src="require('../../assets/cat.jpeg')" fit="cover" />
-              <div class="machine-box-money">
-                <van-icon name="gold-coin" class="money" />
-                <span>200</span>
+              <van-image class="machine-box-image" :src="require('../../assets/cat.jpeg')" fit="cover" @click="Play(item, row)" />
+              <div class="machine-box-header">
+                <div class="machine-box-header-type" v-if="row.pushUserId === '-1'">空闲中</div>
+                <template v-else>
+                  <div v-if="row.current" class="machine-box-header-current">
+                    <van-image :src="row.current.avatar" fit="cover" class="big-img"> </van-image>
+                    <div class="machine-box-header-current-text">游戏中</div>
+                  </div>
+                  <div v-if="row.queue && row.queue.length" class="machine-box-header-queue">
+                    <van-image :src="n.avatar" v-for="n in row.queue" :key="n.id" fit="cover" class="img"> </van-image>
+                    <div class="machine-box-header-queue-text">{{ row.queue && row.queue.length }}人排队中</div>
+                  </div>
+                </template>
               </div>
-            </div>
-            <div class="machine-bottom">
-              <div class="machine-bottom-tab">{{ row.statusId ? "游戏中" : "空闲中" }}</div>
-              <div>一只猫</div>
+              <div class="machine-box-icon" @click="boxClick(item, row)">
+                <icon :type="!row.current" />
+              </div>
             </div>
           </van-col>
         </van-row>
@@ -45,14 +53,16 @@
 <script>
 export default {
   name: "index",
-  components: {},
+  components: {
+    icon: () => import("./components/icon")
+  },
   data() {
     return {
       active: 0,
       list: [
         {
           arr: [],
-          label: "推推机",
+          label: "推币机",
           coinType: 1,
           url: "pushLevelDetail"
         },
@@ -61,13 +71,13 @@ export default {
           label: "娃娃机",
           coinType: 2,
           url: "doll"
+        },
+        {
+          arr: [],
+          label: "欢乐球",
+          coinType: 3,
+          url: "doll"
         }
-        // {
-        //   arr: [],
-        //   label: "欢乐球",
-        //   coinType: 3,
-        //   url: "doll"
-        // }
       ],
       images: ["https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://img.yzcdn.cn/vant/apple-1.jpg", "https://img.yzcdn.cn/vant/apple-2.jpg"],
       interval: null,
@@ -85,38 +95,58 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.user.user;
+      return this.$store.state.user.user || {};
     }
   },
   methods: {
     async init() {
       // 查询机器状态
       let res = await this.$get("coin/list");
+      let { data } = await this.$get("coin/AppointmentList");
       res = res.data.result;
+      this.list.map((r) => {
+        r.arr = [];
+      });
       // isOnline 是否在线 coinType 0 1 2
       res.map((r, i) => {
-        if (this.list[r.coinType]) this.list[r.coinType].arr.push(r);
+        // if (!r.isOnline) return;
+        if (this.list[r.coinType - 1]) {
+          if (data.result[r.coinId]) {
+            r = { ...r, ...data.result[r.coinId] };
+          }
+          this.list[r.coinType - 1].arr.push(r);
+        }
       });
 
       // this.list.map((r, i) => {
       //   let o = res.data.result.filter((n) => n.coinId === r.coinId)[0];
       //   this.$set(this.list[i], "statusId", o.statusId);
       // });
-
     },
     boxClick(item, row) {
+      if (row.current) {
+        this.$get("/coin/Appointment", {
+          coinId: row.coinId
+        });
+      }
+      this.$router.push({
+        path: item.url,
+        query: { coinId: row.coinId, webrtc: row.videoUrl }
+      });
+    },
+    Play(item, row) {
       clearInterval(this.interval);
       this.$router.push({
         path: item.url,
-        query: { coinId: row.coinId, userId: parseInt(Math.random() * 1000000), webrtc: row.videoUrl }
+        query: { coinId: row.coinId, webrtc: row.videoUrl }
       });
     }
   },
   mounted() {
     this.init();
-    // this.interval = setInterval(() => {
-    //   this.init();
-    // }, 3000);
+    this.interval = setInterval(() => {
+      this.init();
+    }, 3000);
   }
 };
 </script>
@@ -132,10 +162,13 @@ export default {
   margin-right: 5px;
 }
 .home {
-  height: 100%;
+  height: calc(100% - 50px) !important;
+  display: flex;
+  flex-direction: column;
   padding: 10px;
   background-color: $pro-color;
   font-size: 12px;
+  overflow-y: hidden;
   .box-swipe {
     padding: 10px 10px 20px;
     margin-bottom: 10px;
@@ -145,7 +178,7 @@ export default {
     .swipe {
       position: initial;
       font-size: 20px;
-      height: 170px;
+      height: 130px;
       &-image {
         width: 100%;
         height: 100%;
@@ -165,50 +198,100 @@ export default {
   .grid {
     margin-bottom: 10px;
   }
+  .box-tabs {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    ::v-deep .van-tabs__content {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
   .machine {
     background-color: #fff;
     @extend .flex;
-    padding: 10px;
     flex-wrap: wrap;
-    border-top: 2px solid $pro-color;
     &-box {
-      border: 3px solid $pro-color;
       border-radius: 5px;
-      padding: 10px 10px 0;
+      margin: 10px 10px 0 10px;
       position: relative;
+      overflow: hidden;
       &-image {
-        height: 100px;
+        height: 168px;
       }
-      &-money {
-        margin-top: 10px;
-        margin-bottom: 5px;
-        font-size: 14px;
-        @extend .flex;
-        background-color: #fff8c5;
-        color: #9d7024;
-        border-radius: 20px;
-        border: 1px solid #9d7024;
-        padding: 2px 5px 2px 0;
-        display: inline-flex;
-        width: 50px;
-        .money {
-          @extend .gem;
-          color: #ffb100;
-          font-size: 14px;
-          transform: scale(1.6);
+      &-header {
+        position: absolute;
+        left: 0;
+        top: 0;
+        padding: 10px 20px;
+        width: 100%;
+        background-color: rgba($color: #000000, $alpha: 0.5);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        &-type {
+          background-color: #02f795;
+          display: inline-block;
+          padding: 3px 6px;
+          border-radius: 6px;
+          color: #491414;
+          font-size: 10px;
+        }
+        .img {
+          border-radius: 50%;
+          height: 25px;
+          width: 25px;
+          overflow: hidden;
+          margin-right: 10px;
+          border: 2px solid #fff;
+        }
+        .big-img {
+          @extend .img;
+          height: 36px;
+          width: 36px;
+          margin-right: 0;
+        }
+        &-current {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          &-text {
+            display: inline-block;
+            padding: 2px 4px;
+            background-color: #f7d402;
+            border-radius: 6px;
+            color: #491414;
+            font-size: 8px;
+            height: 12px;
+            line-height: 12px;
+            margin-top: -4px;
+            z-index: 999;
+          }
+        }
+        &-queue {
+          flex: 1;
+          margin-left: 30px;
+          position: relative;
+          &-text {
+            position: absolute;
+            bottom: -10px;
+            left: -12.5px;
+            display: inline-block;
+            padding: 2px 4px;
+            background-color: #02c5f7;
+            border-radius: 6px;
+            color: #491414;
+            font-size: 8px;
+            height: 12px;
+            line-height: 12px;
+          }
         }
       }
-    }
-    &-bottom {
-      display: flex;
-      margin-top: 10px;
-      align-items: center;
-      &-tab {
-        margin-right: 10px;
-        color: #fff;
-        background-color: #4bcb65;
-        padding: 5px;
-        border-radius: 20px;
+      &-icon {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
       }
     }
   }

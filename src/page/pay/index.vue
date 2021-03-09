@@ -21,12 +21,13 @@ export default {
       wcpayType: 1,
       payCount: 0,
       prepayData: {}, // 请求到的参数合集
+      token: "",
       href: "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base&state="
     };
   },
   methods: {
     refresh() {
-      window.location.replace(this.href + this.money);
+      window.location.replace(this.href + this.money + "&token=" + this.token);
     },
     GetQueryString(name) {
       let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -121,7 +122,10 @@ export default {
   },
   mounted() {
     this.code = this.GetQueryString("code");
-    this.money = this.GetQueryString("state");
+    let state = this.GetQueryString("state").split("isToken");
+    this.money = state[0];
+    this.token = state[1];
+    localStorage.setItem("token", this.token);
     this.$nextTick(() => {
       this.pay();
     });

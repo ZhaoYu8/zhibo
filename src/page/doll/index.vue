@@ -46,33 +46,40 @@
 </template>
 
 <script>
-import Video from "../../components/common/video";
 export default {
   data() {
     return {
-      time: 60 * 1000,
+      time: 30 * 1000,
       playType: true,
       rechargeShow: false,
       status: {},
-      userId: 0,
+      coinId: 0,
       getThrottle: this.$global.throttle(() => {
         this.QueryPrize();
       }, 3000),
       pushCurrency: this.$global.throttle(() => {
         this.push();
-      }, 300)
+      }, 300),
+      current: false
     };
   },
-  components: { Video },
   beforeDestroy() {
     clearInterval(this.interVal);
   },
-  mounted() {
-    this.userId = Number(this.$route.query.userId);
-    this.queryStatus();
+  async mounted() {
+    let options = this.$route.query;
+    this.coinId = parseInt(options.coinId);
+    this.webrtc = options.webrtc;
+    await this.queryStatus();
+    this.$bus.$emit("toggleVideo", this.webrtc);
     this.interVal = setInterval(() => {
       this.queryStatus();
     }, 3000);
+  },
+  computed: {
+    user() {
+      return this.$store.state.user.user || {};
+    }
   },
   methods: {
     goBack() {
@@ -81,7 +88,7 @@ export default {
     // 查询当前机器状态
     async queryStatus() {
       let res = await this.$get("coin/queryStatus", {
-        coinId: parseInt(this.$route.query.coinId)
+        coinId: this.coinId
       });
       this.status = res.data.result;
       this.status.pushUserId = Number(this.status.pushUserId);
@@ -89,7 +96,11 @@ export default {
     recharge() {
       this.rechargeShow = true;
     },
-    play() {
+    async play() {
+      let res = await this.$get("coin/push", {
+        coinId: this.coinId,
+        userId: this.user.userId
+      });
       this.playType = false;
     },
     // 调整方向
@@ -98,7 +109,11 @@ export default {
     },
     // 调整摄像头
     toggleVideo() {
-      this.$bus.$emit("toggle", "abc");
+      this.current = !this.current;
+      let num = this.webrtc.lastIndexOf("/") + 1;
+      console.log(this.webrtc.substring(num));
+      this.webrtc = this.webrtc.substring(0, num) + (Number(this.webrtc.substring(num)) + (this.current ? 1 : -1));
+      this.$bus.$emit("toggle", this.webrtc);
     }
   }
 };

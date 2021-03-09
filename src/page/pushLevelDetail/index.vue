@@ -2,8 +2,14 @@
   <div class="video">
     <div class="video-content">
       <div class="video-headed">
-        <van-icon name="revoke" class="icon" @click="goBack" size="36" />
-        <van-icon name="chat-o" class="icon" size="36" />
+        <icon />
+        <div class="video-headed-current">
+          <div class="video-headed-current-text">已获得xxx积分</div>
+          <div class="video-headed-current-box">
+            <van-image class="video-headed-current-box-image" :src="require('../../assets/cat.jpeg')" fit="cover" />
+            <div class="tag">游戏中</div>
+          </div>
+        </div>
       </div>
       <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
 
@@ -15,7 +21,7 @@
         <div
           class="video-box-buttons"
           :class="{
-            disabled: status.statusId
+            disabled: status.statusId !== 1
           }"
         >
           <div class="button" @click="pushCurrency">投币</div>
@@ -29,6 +35,9 @@
 <script>
 import { MESSAGE_TYPE } from "vue-baberrage";
 export default {
+  components: {
+    icon: () => import("./components/icon")
+  },
   data() {
     return {
       status: {},
@@ -36,8 +45,8 @@ export default {
       barrageIsShow: true,
       barrageLoop: false,
       barrageList: [],
-      userId: 999001,
       num: 0,
+      coinId: 0,
       returnNumber: 0,
       getThrottle: this.$global.throttle(() => {
         this.QueryPrize();
@@ -47,13 +56,20 @@ export default {
       }, 300)
     };
   },
+  computed: {
+    user() {
+      return this.$store.state.user.user || {};
+    }
+  },
   beforeDestroy() {
     clearInterval(this.interVal);
     clearInterval(this.setPrize);
   },
-  mounted() {
-    this.userId = Number(this.$route.query.userId);
-    this.queryStatus();
+  async mounted() {
+    let options = this.$route.query;
+    this.coinId = parseInt(options.coinId);
+    await this.queryStatus();
+    this.$bus.$emit("toggleVideo", options.webrtc);
     this.interVal = setInterval(() => {
       this.queryStatus();
     }, 3000);
@@ -62,19 +78,23 @@ export default {
     // 查询当前机器状态
     async queryStatus() {
       let res = await this.$get("coin/queryStatus", {
-        coinId: parseInt(this.$route.query.coinId)
+        coinId: this.coinId
       });
+      let { data } = await this.$get("coin/AppointmentList", {
+        coinId: this.coinId
+      });
+      console.log(data);
       this.status = res.data.result;
     },
     // 投币
     async push() {
-      if (this.status.statusId) {
+      if (this.status.statusId !== 1) {
         this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
       let res = await this.$get("coin/push", {
-        coinId: parseInt(this.$route.query.coinId),
-        userId: this.userId
+        coinId: this.coinId,
+        userId: this.user.userId
       });
       if (!res.data.success) return;
       this.getThrottle();
@@ -83,27 +103,28 @@ export default {
     // 查询中奖信息
     async QueryPrize() {
       let res = await this.$get("coin/QueryPrize", {
-        userId: this.userId,
-        coinId: parseInt(this.$route.query.coinId)
+        userId: this.user.userId,
+        coinId: this.coinId
       });
       if (!res.data.success) return;
       let result = res.data.result;
-      if (!result.returnNumber) return;
-      this.barrageList.push({
-        id: Math.round(9999999999999 * Math.random()),
-        avatar: require("../../assets/logo.png"),
-        msg: result.prizeType ? `恭喜中${result.prizeTypeName}：${result.prizeTypeName}` : "恭喜退币：" + result.returnNumber,
-        time: 5,
-        type: MESSAGE_TYPE.NORMAL
-      });
-      this.returnNumber = this.returnNumber + result.returnNumber;
+      if (!result.returnNumber) {
+        this.barrageList.push({
+          id: Math.round(9999999999999 * Math.random()),
+          avatar: require("../../assets/logo.png"),
+          msg: result.prizeType ? `恭喜中${result.prizeTypeName}：${result.prizeTypeName}` : "恭喜退币：" + result.returnNumber,
+          time: 5,
+          type: MESSAGE_TYPE.NORMAL
+        });
+        this.returnNumber = this.returnNumber + result.returnNumber;
+      }
       if (result.prizeType) {
         this.setPrize = setInterval(() => {
           this.QueryPrize();
         }, 3000);
         return;
       }
-      if (!this.status.statusId) {
+      if (this.status.statusId !== 1) {
         clearInterval(this.setPrize);
       }
     },
@@ -112,13 +133,13 @@ export default {
     },
     // 雨刷
     async wiper() {
-      if (this.status.statusId) {
+      if (this.status.statusId !== 1) {
         this.$notify({ type: "warning", message: "机器在使用中！" });
         return;
       }
       let res = await this.$get("coin/wiper", {
-        coinId: parseInt(this.$route.query.coinId),
-        userId: this.userId
+        coinId: this.coinId,
+        userId: this.user.userId
       });
       if (!res.data.success) return;
     }
@@ -144,13 +165,54 @@ export default {
     .video-headed {
       z-index: 2;
       position: absolute;
-      box-sizing: border-box;
-      padding: 0 20px;
-      top: 4%;
+      height: 55px;
+      line-height: 55px;
+      top: 0;
       width: 100%;
+      background-color: rgba($color: #000000, $alpha: 0.5);
       display: flex;
-      color: #fff;
       justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      &-current {
+        display: flex;
+        color: #fff;
+        align-items: center;
+        &-text {
+          line-height: initial;
+          padding: 0 10px;
+          background-color: #f7d402;
+          border-radius: 10px;
+          color: #491414;
+          font-size: 14px;
+          margin-right: -10px;
+        }
+        &-box {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          &-image {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #fff;
+          }
+          .tag {
+            color: #491414;
+            font-size: 7px;
+            height: 13px;
+            line-height: 13px;
+            background-color: #f7d402;
+            border-radius: 6px;
+            line-height: initial;
+            padding: 0 5px;
+            margin-top: -5px;
+            z-index: 2;
+          }
+        }
+      }
     }
     .video-box {
       z-index: 2;

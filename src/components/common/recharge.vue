@@ -28,7 +28,8 @@ export default {
   computed: {},
   computed: {
     user() {
-      let recharge = this.$store.state.user.user.recharge;
+      let user = this.$store.state.user.user || {};
+      let recharge = user.recharge;
       return recharge ? recharge.split("").map((r) => Number(r)) : [];
     }
   },
@@ -64,7 +65,8 @@ export default {
       deep: true
     }
   },
-  mounted() {},
+  mounted() {
+  },
   methods: {
     close() {
       this.$emit("input", this.show);

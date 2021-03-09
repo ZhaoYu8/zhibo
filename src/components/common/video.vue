@@ -17,15 +17,11 @@ export default {
       content: "",
       type: false,
       toggle: true,
-      first: false
+      first: false,
+      webrtc: ""
     };
   },
-  props: {
-    webrtc: {
-      type: String,
-      default: "webrtc://live.yiyuanmaidian.com/game/2"
-    }
-  },
+  props: {},
   watch: {
     $route: {
       handler(val) {
@@ -38,7 +34,6 @@ export default {
           });
         } else {
           this.type = false;
-          video.muted = true;
         }
       }
     }
@@ -78,11 +73,13 @@ export default {
           ]
         }
       );
+      if (!this.webrtc) return;
       this.peerCallback();
     },
     peerCallback() {
       let peerConnection = this.peerConnection;
       peerConnection.ontrack = (e) => {
+        console.log("peerConnection.ontrack, kind:" + e.track.kind + ",track.id:" + e.track.id);
         let track = e.track;
         if (!peerConnection.stream) {
           peerConnection.streamId = this.streamId;
@@ -91,6 +88,7 @@ export default {
           this.onAddStream(peerConnection);
         } else {
           peerConnection.stream.addTrack(track);
+          console.log("track.lenght:" + peerConnection.stream.getTracks().length);
         }
       };
       peerConnection
@@ -115,7 +113,7 @@ export default {
           let res = await axios.post(
             "https://webrtc.liveplay.myqcloud.com/webrtc/v1/pullstream",
             {
-              streamurl: "webrtc://5664.liveplay.myqcloud.com/live/5664_harchar1",
+              streamurl: this.webrtc,
               sessionid: "sessionId_Test",
               clientinfo: "clientinfo_test",
               localsdp: offer
@@ -134,7 +132,6 @@ export default {
       let streamId = e.streamId;
       let video = document.getElementById(streamId);
       video.srcObject = e.stream;
-      video.muted = true;
       video.autoplay = true;
       video.playsinline = true;
       this.$nextTick(() => {
@@ -143,11 +140,17 @@ export default {
     }
   },
   mounted() {
-    this.$bus.$on("toggle", (a) => {
+    this.$bus.$on("toggle", (val) => {
+      this.webrtc = val;
+      this.pullStream();
       this.toggle = false;
       setTimeout(() => {
         this.toggle = true;
-      }, 300);
+      }, 500);
+    });
+    this.$bus.$on("toggleVideo", (val) => {
+      this.webrtc = val;
+      this.pullStream();
     });
     document.body.addEventListener(
       "click",
@@ -187,7 +190,7 @@ export default {
   }
 }
 .fade-leave-active {
-  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+  transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
 }
 .fade-enter,
 .fade-leave-to {

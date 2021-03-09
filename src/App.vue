@@ -24,7 +24,7 @@ export default {
   components: { Video },
   computed: {
     user() {
-      return this.$store.state.user.user;
+      return this.$store.state.user.user || {};
     }
   },
   methods: {
@@ -47,6 +47,13 @@ export default {
     async queryUserCoin() {
       let coin = await this.$get(`userCoin/info?userId=${this.user.userId}`, {}, true);
       this.$store.dispatch("user/updateCoin", coin.data.num);
+    },
+
+    GetQueryString(name) {
+      let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+      let r = window.location.search.substr(1).match(reg);
+      if (r != null) return unescape(r[2]);
+      return null;
     }
   },
   watch: {
@@ -77,6 +84,8 @@ export default {
       this.queryUserInfo();
       this.queryUserCoin();
     });
+    localStorage.setItem("token", this.GetQueryString("token"));
+    console.log(window.location);
   }
 };
 </script>

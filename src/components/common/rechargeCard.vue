@@ -1,6 +1,6 @@
 <template>
   <div class="recharge-card">
-    <a :href="href + `&state=` + r.money" v-for="(r, i) in item" :key="r.moeny">
+    <a :href="href + `&state=` + r.money + 'isToken' + token" v-for="(r, i) in item" :key="r.moeny">
       <div class="recharge-card-coins" :style="{ width: col, 'margin-right': (i + 1) % num === 0 ? 0 : '5%' }" :class="{ 'recharge-card-active': r.type === 2 }">
         <div class="active" v-if="r.type === 2"><van-icon name="point-gift-o" class="icon" />首充</div>
         <div class="num">{{ r.num }}币</div>
@@ -29,10 +29,13 @@ export default {
   },
   data() {
     return {
-      href: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base`
+      href: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc54755f1f5042a10&redirect_uri=https%3a%2f%2fplay.yiyuanmaidian.com%2f%23%2fpay&response_type=code&scope=snsapi_base`,
+      token: ""
     };
   },
-  methods: {}
+  mounted() {
+    this.token = localStorage.getItem("token");
+  }
 };
 </script>
 <style lang="scss" scoped>

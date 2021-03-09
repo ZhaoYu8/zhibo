@@ -23,7 +23,8 @@ export default {
   },
   computed: {
     user() {
-      let recharge = this.$store.state.user.user.recharge;
+      let user = this.$store.state.user.user || {};
+      let recharge = user.recharge;
       return recharge ? recharge.split("").map((r) => Number(r)) : [];
     }
   },

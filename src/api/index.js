@@ -7,11 +7,17 @@ let instance = axios.create({
     return status === 200;
   }
 });
-
+if (process.env.NODE_ENV === "development") {
+  document.cookie =
+    ".AspNetCore.yiyuanmaidian=CfDJ8G41fqGd6VhLsxKEHimI3Bnh5vlxdvX5BZXROQZeLksnGSu1IOhG4d0nbk079O-3fIOzMZLRMk1TwF3S1TrRGOYXsaA_cDxXr4F0PXOUYrn-m_P9bTDqfdwP556shGqtSCeWiqgiEJHO6exRmYWj4mB-l1i4A447b7tFkyMoDBocjEsd3ejw78Gh0X4uQ3r43zgL2inxokZ3-QE35kFtNiuF9EMdO5r-GHV3TltoV2fBtvjvDGPhWPw01Yc9JlBe9y16WoOa7lU8eBsvvdvRCDNGkvAzMZux07tFfwShiKrnanqCv2PKKTDnhZKJASDXnW6Bo4aQab-C4VtbBcJXupKla5suyVjO3yGH36UnS3LD";
+} else {
+  document.cookie = "";
+}
 // 拦截请求
 instance.interceptors.request.use(
   (config) => {
-    let token = localStorage.getItem("token") || "5c76mrpir26a2vl2r8ru4reu8ll6pux0";
+    let token = localStorage.getItem("token");
+    token = token != "null" ? token : "px1xz6517e1bc9kjgddtiv64nd7yb18b";
     if (token) {
       config.headers["X-Nideshop-Token"] = token;
     }
