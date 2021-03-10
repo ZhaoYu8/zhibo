@@ -3,13 +3,16 @@
     <Header>
       <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="ml-10 f-b f-22">{{ user.nickname }}</span></Header
     >
-    <div class="box-swipe">
+    <div>
+      <van-button type="primary" @click="add">测试加币</van-button>
+    </div>
+    <!-- <div class="box-swipe">
       <van-swipe class="swipe" :autoplay="8000" indicator-color="#FB605C">
         <van-swipe-item v-for="(image, index) in images" :key="index">
           <van-image class="swipe-image" fit="cover" :src="image"></van-image>
         </van-swipe-item>
       </van-swipe>
-    </div>
+    </div> -->
     <!-- <van-grid :column-num="5" class="grid">
       <van-grid-item v-for="item in arr" :key="item.name" icon-prefix="my-icon" icon="gengduo" :text="item.name">
         <template #icon>
@@ -21,11 +24,11 @@
       </van-grid-item>
     </van-grid> -->
     <van-tabs v-model="active" swipeable color="#fbe752" class="box-tabs">
-      <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
+      <van-tab :title="item.label" v-for="item in list" :key="item.coinType" class="asdsa">
         <van-row class="machine" gutter="10">
           <van-col :span="24" v-for="row in item.arr" :key="row.id">
             <div class="machine-box">
-              <van-image class="machine-box-image" :src="require('../../assets/cat.jpeg')" fit="cover" @click="Play(item, row)" />
+              <img class="machine-box-image" :src="require('../../assets/default.jpg')" @click="Play(item, row)" />
               <div class="machine-box-header">
                 <div class="machine-box-header-type" v-if="row.pushUserId === '-1'">空闲中</div>
                 <template v-else>
@@ -99,6 +102,10 @@ export default {
     }
   },
   methods: {
+    add() {
+      this.$post(`userCoin/setVal?userId=${this.user.userId}&num=1000`, {}, true);
+      this.$bus.$emit("globalInit");
+    },
     async init() {
       // 查询机器状态
       let res = await this.$get("coin/list");
@@ -219,6 +226,9 @@ export default {
       overflow: hidden;
       &-image {
         height: 168px;
+        object-position: 50% 79%;
+        object-fit: cover;
+        width: 100%;
       }
       &-header {
         position: absolute;

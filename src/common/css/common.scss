@@ -46,10 +46,80 @@ body {
 .p-10 {
   padding: 10px;
 }
+.mb-20 {
+  margin-bottom: 20px;
+}
 .f-22 {
   font-size: 22px;
 }
 .van-hairline--top-bottom::after,
 .van-hairline-unset--top-bottom::after {
   border: 0;
+}
+
+.dis-flex {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.flex-box {
+  flex: 1;
+  overflow: hidden;
+}
+
+.flex-2 {
+  flex: 2;
+  overflow: hidden;
+}
+
+.flex-3 {
+  flex: 3;
+  overflow: hidden;
+}
+
+.flex-dir-row {
+  flex-direction: row;
+}
+
+.flex-dir-column {
+  flex-direction: column;
+}
+
+.flex-x-center {
+  /* display: flex; */
+  justify-content: center;
+}
+
+.flex-x-between {
+  justify-content: space-between;
+}
+
+.flex-x-around {
+  justify-content: space-around;
+}
+
+.flex-x-end {
+  justify-content: flex-end;
+}
+
+.flex-y-start {
+  align-items: flex-start;
+}
+
+.flex-y-center {
+  align-items: center;
+}
+
+.flex-y-end {
+  align-items: flex-end;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

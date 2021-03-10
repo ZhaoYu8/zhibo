@@ -46,7 +46,6 @@ export default {
       //video.muted = true
       video.autoplay = true;
       video.playsinline = true;
-      console.log(123);
       var playPromise = video.play();
       setInterval(() => {
         video.play();

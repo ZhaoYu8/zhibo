@@ -51,7 +51,6 @@ var svrSig;
 var peerConnection;
 
 function pullStream() {
-  console.log(123);
   var clientInfo = "clientinfo_test";
   var sessionId = "sessionId_Test";
   streamUrl = "webrtc://live.yiyuanmaidian.com/game/411";

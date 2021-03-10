@@ -1,6 +1,6 @@
 <template>
   <div class="doll">
-    <div class="doll-headed">
+    <div class="doll-header">
       <van-icon name="revoke" class="icon" @click="goBack" size="36" />
       <van-icon name="chat-o" class="icon" size="36" />
     </div>
@@ -38,7 +38,7 @@
       </div>
       <div class="play">
         <div class="play-time"><van-count-down :time="time" format="ss" />S</div>
-        <div class="play-button">GO</div>
+        <div class="play-button" @click="Go">GO</div>
       </div>
     </div>
     <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
@@ -60,7 +60,7 @@ export default {
       pushCurrency: this.$global.throttle(() => {
         this.push();
       }, 300),
-      current: false
+      current: true
     };
   },
   beforeDestroy() {
@@ -69,7 +69,8 @@ export default {
   async mounted() {
     let options = this.$route.query;
     this.coinId = parseInt(options.coinId);
-    this.webrtc = options.webrtc;
+    let num = options.webrtc.lastIndexOf("/") + 1;
+    this.webrtc = options.webrtc.substring(0, num) + (Number(options.webrtc.substring(num)) + 1);
     await this.queryStatus();
     this.$bus.$emit("toggleVideo", this.webrtc);
     this.interVal = setInterval(() => {
@@ -97,21 +98,52 @@ export default {
       this.rechargeShow = true;
     },
     async play() {
+      if (this.status.statusId !== 1) {
+        this.$toast("机器不能操作！");
+        return;
+      }
+      this.$toast.loading({
+        duration: 0, // 持续展示 toast
+        forbidClick: true,
+        message: "加载中"
+      });
       let res = await this.$get("coin/push", {
         coinId: this.coinId,
         userId: this.user.userId
       });
-      this.playType = false;
+      this.$toast.clear();
+      if (res.data.success) {
+        this.playType = false;
+        return;
+      }
+      this.$notify({
+        type: "warning",
+        message: res.data.msg,
+        duration: 1500
+      });
     },
     // 调整方向
     direction(item) {
-      console.log(item);
+      // 9：前； 10:左； 11： 右； 12： 后； 13： 下
+      this.$get("coin/Move", {
+        coinId: this.coinId,
+        moveType: [0, 9, 10, 11, 12][item]
+      });
+    },
+    Go() {
+      this.$get("coin/Move", {
+        coinId: this.coinId,
+        moveType: 13
+      });
+
+      setTimeout(() => {
+        this.playType = !this.playType;
+      }, 5000);
     },
     // 调整摄像头
     toggleVideo() {
       this.current = !this.current;
       let num = this.webrtc.lastIndexOf("/") + 1;
-      console.log(this.webrtc.substring(num));
       this.webrtc = this.webrtc.substring(0, num) + (Number(this.webrtc.substring(num)) + (this.current ? 1 : -1));
       this.$bus.$emit("toggle", this.webrtc);
     }
@@ -127,7 +159,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  &-headed {
+  &-header {
     z-index: 2;
     box-sizing: border-box;
     padding: 0 20px;

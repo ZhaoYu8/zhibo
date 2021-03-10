@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "development") {
 instance.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
-    token = token != "null" ? token : "px1xz6517e1bc9kjgddtiv64nd7yb18b";
+    token = token != "null" ? token : "qr4e70iejvkg72wg8qywzqjbve4va3j8";
     if (token) {
       config.headers["X-Nideshop-Token"] = token;
     }
@@ -31,19 +31,19 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (res) => {
     if (res.status === 200 && !res.config.url.includes("www.worksp.cn") && !res.data.success) {
-      vant.Notify(res.data.msg || "调用失败！");
+      if (res.data.msg !== "投币失败") vant.Notify(res.data.msg || "调用失败！");
     }
     return res;
   },
   (error) => {
-    let errorMessage = "调用失败！";
-    if (error.response.status) {
-      errorMessage = error.response.data ? error.response.data.error.message : error.response.status + errorMessage;
-    }
-    vant.Notify({
-      message: errorMessage,
-      duration: 4000
-    });
+    // let errorMessage = "调用失败！";
+    // if (error.response.status) {
+    //   errorMessage = error.response.data ? error.response.data.error.message : error.response.status + errorMessage;
+    // }
+    // vant.Notify({
+    //   message: errorMessage,
+    //   duration: 4000
+    // });
     return Promise.reject(error);
   }
 );
