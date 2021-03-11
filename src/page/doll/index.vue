@@ -1,44 +1,51 @@
 <template>
-  <div class="doll">
-    <div class="doll-header">
-      <van-icon name="revoke" class="icon" @click="goBack" size="36" />
-      <van-icon name="chat-o" class="icon" size="36" />
+  <div class="game">
+    <game :list="ointmentList" />
+    <div class="game-flip" @click="toggleVideo"><van-icon name="photograph" /></div>
+    <div class="ready" v-show="readyType">
+      ready Go
     </div>
-    <div class="doll-flip" @click="toggleVideo"><van-icon name="photograph" /></div>
-    <div v-show="playType">
-      <div class="doll-footer">
-        <van-icon name="bullhorn-o" color="#ffe000" size="20" />
-        <ul class="doll-footer-info">
-          <li>
-            本次：
-            <div class="doll-footer-info-num">20</div>
-          </li>
-          <li>
-            砖石余额：
-            <div class="doll-footer-info-num">20</div>
-          </li>
-          <li>
-            积分：
-            <div class="doll-footer-info-num">20</div>
-          </li>
-        </ul>
-      </div>
-      <div class="doll-play">
-        <img src="../../assets/1.png" alt="" class="photo" />
-        <img src="../../assets/2.png" alt="" class="big-photo" @click="play" />
-        <img src="../../assets/3.png" alt="" class="photo" @click="recharge" />
-      </div>
+    <div class="game-prize">
+      <van-row gutter="20" :class="gameType" v-show="existence">
+        <van-col span="12">
+          <div class="prize">当前游戏币：{{ user.coin }}</div>
+        </van-col>
+        <van-col span="12">
+          <div class="prize">当前积分：{{ user.point }}</div>
+        </van-col>
+      </van-row>
     </div>
+    <div class="game-box">
+      <transition name="el-fade-in-linear">
+        <!-- 只有状态不是1的时候 并且 预约队列里面没有我 -->
+        <div class="dis-flex flex-x-center mb-20" v-if="gameType" @click="booking">
+          <svgs :type="4"></svgs>
+        </div>
+        <div v-else-if="status.statusId !== 1" class="game-box-booking">
+          <svgs :type="5"></svgs>
+          <div class="game-box-booking-tag">排队中({{ bookingNumber }})</div>
+        </div>
+
+        <div v-show="status.statusId === 1 && playType">
+          <div class="game-begin">
+            <img src="../../assets/1.png" alt="" class="photo" />
+            <img src="../../assets/2.png" alt="" class="big-photo" @click="begin" />
+            <img src="../../assets/3.png" alt="" class="photo" @click="rechargeShow = true" />
+          </div>
+        </div>
+      </transition>
+    </div>
+
     <!-- 按钮组 -->
-    <div v-if="!playType" class="control">
+    <div v-if="status.statusId === 1 && !playType" class="control">
       <div class="control-buttons">
         <div class="circle" :class="'circle' + item" v-for="item in 4" :key="item">
           <van-icon name="play" class="triangle" :class="'triangle' + item" @click="direction(item)" />
         </div>
       </div>
       <div class="play">
-        <div class="play-time"><van-count-down :time="time" format="ss" />S</div>
-        <div class="play-button" @click="Go">GO</div>
+        <div class="play-time"><van-count-down :time="time" format="ss" @finish="playType = true" />S</div>
+        <div class="play-button" @click="play">GO</div>
       </div>
     </div>
     <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
@@ -46,60 +53,28 @@
 </template>
 
 <script>
+import game from "@/mixin/game";
 export default {
+  mixins: [game],
   data() {
     return {
       time: 30 * 1000,
-      playType: true,
-      rechargeShow: false,
-      status: {},
-      coinId: 0,
-      getThrottle: this.$global.throttle(() => {
-        this.QueryPrize();
-      }, 3000),
-      pushCurrency: this.$global.throttle(() => {
-        this.push();
-      }, 300),
-      current: true
+      playType: true, // 控制显示游戏
+      rechargeShow: false, // 控制显示充值页面
+      camera: true, // 控制调整摄像头
+      audio: "",
+      readyType: false
     };
   },
-  beforeDestroy() {
-    clearInterval(this.interVal);
-  },
   async mounted() {
-    let options = this.$route.query;
-    this.coinId = parseInt(options.coinId);
-    let num = options.webrtc.lastIndexOf("/") + 1;
-    this.webrtc = options.webrtc.substring(0, num) + (Number(options.webrtc.substring(num)) + 1);
-    await this.queryStatus();
+    let num = this.options.webrtc.lastIndexOf("/") + 1;
+    this.webrtc = this.options.webrtc.substring(0, num) + (Number(this.options.webrtc.substring(num)) + 1);
     this.$bus.$emit("toggleVideo", this.webrtc);
-    this.interVal = setInterval(() => {
-      this.queryStatus();
-    }, 3000);
-  },
-  computed: {
-    user() {
-      return this.$store.state.user.user || {};
-    }
   },
   methods: {
-    goBack() {
-      this.$router.go(-1);
-    },
-    // 查询当前机器状态
-    async queryStatus() {
-      let res = await this.$get("coin/queryStatus", {
-        coinId: this.coinId
-      });
-      this.status = res.data.result;
-      this.status.pushUserId = Number(this.status.pushUserId);
-    },
-    recharge() {
-      this.rechargeShow = true;
-    },
-    async play() {
+    async begin() {
       if (this.status.statusId !== 1) {
-        this.$toast("机器不能操作！");
+        this.$toast("机器在使用中！");
         return;
       }
       this.$toast.loading({
@@ -112,39 +87,45 @@ export default {
         userId: this.user.userId
       });
       this.$toast.clear();
-      if (res.data.success) {
-        this.playType = false;
+      if (!res.data.success) {
+        this.$notify({
+          type: "warning",
+          message: res.data.msg,
+          duration: 1500
+        });
         return;
       }
-      this.$notify({
-        type: "warning",
-        message: res.data.msg,
-        duration: 1500
-      });
+      this.$bus.$emit("updateInfo");
+      if (!this.audio) this.audio = new Audio(require("../../assets/1.mp3")); //这里的路径写上mp3文件在项目中的绝对路径
+      this.audio.play(); //播放
+      this.playType = false;
+      this.readyType = true;
+      setTimeout(() => {
+        this.readyType = false;
+      }, 2000);
     },
-    // 调整方向
+    // 调整方向  // 9：前； 10:左； 11： 右； 12： 后； 13： 下
     direction(item) {
-      // 9：前； 10:左； 11： 右； 12： 后； 13： 下
       this.$get("coin/Move", {
         coinId: this.coinId,
         moveType: [0, 9, 10, 11, 12][item]
       });
     },
-    Go() {
+    play() {
       this.$get("coin/Move", {
         coinId: this.coinId,
         moveType: 13
       });
-
       setTimeout(() => {
         this.playType = !this.playType;
-      }, 5000);
+        this.$bus.$emit("updateInfo");
+      }, 7000);
     },
     // 调整摄像头
     toggleVideo() {
-      this.current = !this.current;
+      this.camera = !this.camera;
       let num = this.webrtc.lastIndexOf("/") + 1;
-      this.webrtc = this.webrtc.substring(0, num) + (Number(this.webrtc.substring(num)) + (this.current ? 1 : -1));
+      this.webrtc = this.webrtc.substring(0, num) + (Number(this.webrtc.substring(num)) + (this.camera ? 1 : -1));
       this.$bus.$emit("toggle", this.webrtc);
     }
   }
@@ -152,26 +133,43 @@ export default {
 </script>
 
 <style lang="scss" scope>
-.doll {
-  position: relative;
-  height: 100%;
-  font-size: 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  &-header {
-    z-index: 2;
-    box-sizing: border-box;
-    padding: 0 20px;
+@import "../../common/css/game.scss";
+.ready {
+  color: #fff;
+  font-size: 30px;
+  animation: myfirst 2s;
+  animation-timing-function: value;
+  z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+@keyframes myfirst {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    font-size: 50px;
+    color: #ffd01e;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.game {
+  &-prize {
+    position: absolute;
+    bottom: 160px;
     width: 100%;
-    display: flex;
-    color: #fff;
-    justify-content: space-between;
-    margin-top: 20px;
+    z-index: 2;
+    padding: 10px;
   }
   &-flip {
     position: absolute;
-    top: 40%;
+    bottom: 200px;
     right: 0;
     z-index: 2;
     background-color: #0b4367;
@@ -183,44 +181,9 @@ export default {
     font-size: 25px;
     margin-right: 10px;
   }
-  &-video {
-    width: 100%;
-    z-index: 1;
-    background-color: #c8c9cc;
-  }
-  &-footer {
-    width: 96%;
+  &-begin {
     position: absolute;
     z-index: 2;
-    bottom: 120px;
-    background-color: #000;
-    background-color: rgba(0, 0, 0, 0.25);
-    color: #fff;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    box-sizing: border-box;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    &-info {
-      flex: 1;
-      margin-left: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      line-height: 18px;
-      li {
-        display: inline-flex;
-      }
-      &-num {
-        color: #ffd01e;
-      }
-    }
-  }
-  &-play {
-    position: absolute;
-    z-index: 1;
     bottom: 20px;
     display: flex;
     align-items: center;
@@ -235,14 +198,14 @@ export default {
     }
   }
   .control {
+    position: absolute;
     bottom: 20px;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     width: 100%;
     height: 140px;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 20px;
     &-buttons {
       position: relative;
       flex: 1;
@@ -278,21 +241,37 @@ export default {
       left: 50%;
       transform: translateX(-50%);
       top: 0;
+      &:active {
+        transition: all 0.3s;
+        transform: translateX(-50%) translate3d(0, -3px, 0);
+      }
     }
     .circle2 {
       left: 50px;
       transform: translateY(-50%);
       top: 50%;
+      &:active {
+        transition: all 0.3s;
+        transform: translateY(-50%) translate3d(-3px, 0, 0);
+      }
     }
     .circle3 {
       right: 50px;
       transform: translateY(-50%);
       top: 50%;
+      &:active {
+        transition: all 0.3s;
+        transform: translateY(-50%) translate3d(3px, 0, 0);
+      }
     }
     .circle4 {
       left: 50%;
       transform: translateX(-50%);
       bottom: 0;
+      &:active {
+        transition: all 0.3s;
+        transform: translateX(-50%) translate3d(0, 3px, 0);
+      }
     }
     .play {
       z-index: 2;
@@ -304,6 +283,7 @@ export default {
         justify-content: center;
         align-items: center;
         font-size: 32px;
+        margin-bottom: 10px;
         .van-count-down {
           font-size: inherit;
           color: #fff;
@@ -319,6 +299,10 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
+        &:active {
+          transition: all 0.3s;
+          transform: translate3d(0, 3px, 0);
+        }
       }
     }
   }

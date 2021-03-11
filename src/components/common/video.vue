@@ -34,6 +34,7 @@ export default {
           });
         } else {
           this.type = false;
+          video.muted = true;
         }
       }
     }

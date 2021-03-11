@@ -17,11 +17,11 @@ body {
 * {
   box-sizing: border-box;
 }
-#video-controls-container {
-  justify-content: flex-start;
-}
-.c-fff {
-  color: #fff;
+.action {
+  &:active {
+    box-shadow: 0 3px 0 #00000030;
+    transform: translate3d(0, 3px, 0);
+  }
 }
 .flex {
   display: flex;
@@ -33,6 +33,9 @@ body {
 }
 .m-0 {
   margin: 0;
+}
+.m-10 {
+  margin: 10px;
 }
 .mt-10 {
   margin-top: 10px;

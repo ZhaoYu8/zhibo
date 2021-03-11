@@ -1,0 +1,39 @@
+.game {
+  position: relative;
+  font-size: 18px;
+  &-box {
+    z-index: 2;
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    height: 20%;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    &-booking {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      &-tag {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 26px;
+        color: #03556b;
+      }
+    }
+  }
+  .prize {
+    padding: 5px;
+    font-size: 12px;
+    color: #fff;
+    background-color: rgba($color: #000000, $alpha: 0.6);
+    border-radius: 13px;
+    text-align: center;
+    margin-top: 10px;
+  }
+}

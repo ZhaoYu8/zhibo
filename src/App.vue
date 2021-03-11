@@ -2,8 +2,9 @@
   <div id="app">
     <Video></Video>
     <keep-alive>
-      <router-view class="router" style="margin-bottom: 50px" />
+      <router-view v-if="$route.meta.keepAlive" class="router" style="margin-bottom: 50px" />
     </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive" class="router" style="margin-bottom: 50px"></router-view>
     <van-tabbar v-model="active" @change="onChange">
       <van-tabbar-item :to="'/' + item.url" v-for="item in arr" :icon="item.icon" :key="item.name">{{ item.name }}</van-tabbar-item>
     </van-tabbar>
@@ -32,25 +33,15 @@ export default {
   methods: {
     async init() {
       await this.queryUserInfo();
-      this.queryUser();
+      this.gameInfo();
     },
     // 查询用户信息
     async queryUserInfo() {
       let data = await this.$post("user/info", {}, true);
       this.$store.dispatch("user/updateUser", data.data);
     },
-    // // 查询用户积分
-    // async queryUserPoint() {
-    //   let point = await this.$get(`userPoint/info?userId=${this.user.userId}`, {}, true);
-    //   this.$store.dispatch("user/updatePoint", point.data.point);
-    // },
-    // // 查询用户游戏币
-    // async queryUserCoin() {
-    //   let coin = await this.$get(`userCoin/info?userId=${this.user.userId}`, {}, true);
-    //   this.$store.dispatch("user/updateCoin", coin.data.num);
-    // },
     // 查询用户游戏币和积分
-    async queryUser() {
+    async gameInfo() {
       let { data } = await this.$get(`user/gameInfo?userId=${this.user.userId}`, {}, true);
       this.$store.dispatch("user/updatePoint", data.userPoint.point);
       this.$store.dispatch("user/updateCoin", data.userCoin.num);
@@ -89,7 +80,10 @@ export default {
     this.init();
     this.$bus.$on("globalInit", () => {
       this.queryUserInfo();
-      this.queryUser();
+      this.gameInfo();
+    });
+    this.$bus.$on("updateInfo", () => {
+      this.gameInfo();
     });
     localStorage.setItem("token", this.GetQueryString("token"));
     console.log(this.GetQueryString("token"));

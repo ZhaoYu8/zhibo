@@ -1,17 +1,20 @@
 <template>
   <div class="recharge-card">
-    <a :href="href + `&state=` + r.money + 'isToken' + token" v-for="(r, i) in item" :key="r.moeny">
+    <div v-for="(r, i) in item" :key="r.moeny" @click="handleRecharge(r, i)">
       <div class="recharge-card-coins" :style="{ width: col, 'margin-right': (i + 1) % num === 0 ? 0 : '5%' }" :class="{ 'recharge-card-active': r.type === 2 }">
         <div class="active" v-if="r.type === 2"><van-icon name="point-gift-o" class="icon" />首充</div>
         <div class="num">{{ r.num }}币</div>
         <div class="bestowNum" v-if="r.bestowNum">送{{ r.bestowNum }}币</div>
         <div class="money">￥ {{ r.money }}.00</div>
       </div>
-    </a>
+    </div>
   </div>
 </template>
 
 <script>
+function ready() {
+  console.log(1, window.__wxjs_environment === "miniprogram"); // true
+}
 export default {
   props: {
     item: {
@@ -35,6 +38,26 @@ export default {
   },
   mounted() {
     this.token = localStorage.getItem("token");
+    if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
+      document.addEventListener("WeixinJSBridgeReady", ready, false);
+    } else {
+      ready();
+    }
+  },
+  computed: {
+    user() {
+      return this.$store.state.user || {};
+    }
+  },
+  methods: {
+    handleRecharge(val) {
+      wx.miniProgram.navigateTo({
+        url: `/pages/ucenter/recharge/recharge?userId=${this.user.user.userId}&actualPrice=${val.money}`, //指定跳转至小程序页面的路径
+        success: function() {
+          console.log("success"); //页面跳转成功的回调函数
+        }
+      });
+    }
   }
 };
 </script>

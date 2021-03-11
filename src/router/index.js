@@ -9,7 +9,10 @@ const routes = [
   {
     path: "/index", // 首页
     name: "index",
-    component: () => import(/* webpackChunkName: "index" */ "../page/index/index.vue")
+    component: () => import(/* webpackChunkName: "index" */ "../page/index/index.vue"),
+    meta: {
+      keepAlive: true
+    }
   },
   {
     path: "/ranking", // 排行

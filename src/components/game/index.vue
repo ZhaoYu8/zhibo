@@ -3,7 +3,6 @@
     <div @click="goBack" class="dis-flex flex-y-center">
       <icon />
     </div>
-
     <transition name="el-fade-in-linear">
       <div class="header-current" v-if="list.current">
         <div class="header-current-text">已获得{{ list.current.points }}积分</div>
@@ -20,7 +19,7 @@
     </transition>
     <div class="header-queue" v-if="list.queue && list.queue.length">
       <div class="header-queue-tag">{{ list.queue.length }}人排队中</div>
-      <van-image :src="item.avatar" v-for="item in list.queue" fit="cover" class="img" :key="item.id"> </van-image>
+      <van-image :src="item.avatar" v-for="item in list.queue" fit="cover" class="img mb-10" :key="item.id"> </van-image>
     </div>
     <!-- <template v-if="list.queue && list.queue.length">
         <van-image :src="n.avatar" v-for="n in row.queue" :key="n.id" fit="cover" class="img"> </van-image>
@@ -138,6 +137,7 @@ export default {
       line-height: initial;
       transform: scale(0.8, 0.8);
       white-space: nowrap;
+      margin-bottom: 5px;
     }
   }
 }

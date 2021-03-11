@@ -24,7 +24,7 @@
       </van-grid-item>
     </van-grid> -->
     <van-tabs v-model="active" swipeable color="#fbe752" class="box-tabs">
-      <van-tab :title="item.label" v-for="item in list" :key="item.coinType" class="asdsa">
+      <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
         <van-row class="machine" gutter="10">
           <van-col :span="24" v-for="row in item.arr" :key="row.id">
             <div class="machine-box">
@@ -131,6 +131,7 @@ export default {
       // });
     },
     boxClick(item, row) {
+      clearInterval(this.interval);
       if (row.current) {
         this.$get("/coin/Appointment", {
           coinId: row.coinId
@@ -210,6 +211,9 @@ export default {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    ::v-deep .van-tabs__nav {
+      padding-bottom: 12px;
+    }
     ::v-deep .van-tabs__content {
       flex: 1;
       overflow-y: auto;
@@ -281,12 +285,12 @@ export default {
         }
         &-queue {
           flex: 1;
-          margin-left: 30px;
+          margin-left: 15px;
           position: relative;
           &-text {
             position: absolute;
-            bottom: -10px;
-            left: -12.5px;
+            bottom: -15px;
+            left: 0;
             display: inline-block;
             padding: 2px 4px;
             background-color: #02c5f7;
