@@ -19,6 +19,9 @@ export default {
   beforeDestroy() {
     clearInterval(this.machineSetInterVal);
   },
+  deactivated() {
+    clearInterval(this.machineSetInterVal);
+  },
   computed: {
     user() {
       return this.$store.state.user || {};
@@ -35,10 +38,7 @@ export default {
       return current && Number(current.userId) === Number(this.user.user.userId);
     }
   },
-  created() {
-    this.options = this.$route.query;
-    this.coinId = parseInt(this.options.coinId);
-  },
+  created() {},
   methods: {
     // 查询当前机器状态
     async machineStatus() {
@@ -62,7 +62,9 @@ export default {
       this.machineStatus();
     }
   },
-  mounted() {
+  activated() {
+    this.options = this.$route.query;
+    this.coinId = parseInt(this.options.coinId);
     this.machineStatus();
     this.machineSetInterVal = setInterval(() => {
       this.machineStatus();

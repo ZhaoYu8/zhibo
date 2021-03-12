@@ -58,7 +58,7 @@ export default {
       }, 300)
     };
   },
-  async mounted() {
+  activated() {
     this.$bus.$emit("toggleVideo", this.options.webrtc);
   },
   methods: {

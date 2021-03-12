@@ -27,7 +27,7 @@ export default {
       handler(val) {
         let video = document.getElementById(this.streamId);
         if (["doll", "pushLevelDetail"].includes(val.name)) {
-          this.pullStream();
+          // this.pullStream();
           this.type = true;
           this.$nextTick(() => {
             video.muted = false;

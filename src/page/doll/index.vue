@@ -66,7 +66,7 @@ export default {
       readyType: false
     };
   },
-  async mounted() {
+  activated() {
     let num = this.options.webrtc.lastIndexOf("/") + 1;
     this.webrtc = this.options.webrtc.substring(0, num) + (Number(this.options.webrtc.substring(num)) + 1);
     this.$bus.$emit("toggleVideo", this.webrtc);

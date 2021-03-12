@@ -96,6 +96,9 @@ export default {
   beforeDestroy() {
     clearInterval(this.interval);
   },
+  deactivated() {
+    clearInterval(this.interval);
+  },
   computed: {
     user() {
       return this.$store.state.user.user || {};
@@ -150,7 +153,7 @@ export default {
       });
     }
   },
-  mounted() {
+  activated() {
     this.init();
     this.interval = setInterval(() => {
       this.init();

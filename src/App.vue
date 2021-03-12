@@ -2,9 +2,8 @@
   <div id="app">
     <Video></Video>
     <keep-alive>
-      <router-view v-if="$route.meta.keepAlive" class="router" style="margin-bottom: 50px" />
+      <router-view class="router" style="margin-bottom: 50px" />
     </keep-alive>
-    <router-view v-if="!$route.meta.keepAlive" class="router" style="margin-bottom: 50px"></router-view>
     <van-tabbar v-model="active" @change="onChange">
       <van-tabbar-item :to="'/' + item.url" v-for="item in arr" :icon="item.icon" :key="item.name">{{ item.name }}</van-tabbar-item>
     </van-tabbar>
@@ -67,16 +66,16 @@ export default {
     }
   },
   mounted() {
-    window.addEventListener(
-      "popstate",
-      () => {
-        if (localStorage.getItem("pay")) {
-          this.init();
-        }
-        localStorage.setItem("pay", false);
-      },
-      false
-    );
+    // window.addEventListener(
+    //   "popstate",
+    //   () => {
+    //     if (localStorage.getItem("pay")) {
+    //       this.init();
+    //     }
+    //     localStorage.setItem("pay", false);
+    //   },
+    //   false
+    // );
     this.init();
     this.$bus.$on("globalInit", () => {
       this.queryUserInfo();
