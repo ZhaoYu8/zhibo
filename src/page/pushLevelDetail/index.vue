@@ -37,6 +37,7 @@
         </div>
       </transition>
     </div>
+    <animation v-if="existence" :time="endTime + 1"> </animation>
   </div>
 </template>
 
@@ -44,6 +45,9 @@
 import { MESSAGE_TYPE } from "vue-baberrage";
 import game from "@/mixin/game";
 export default {
+  components: {
+    animation: () => import("@/components/animation")
+  },
   mixins: [game],
   data() {
     return {

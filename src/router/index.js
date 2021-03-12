@@ -43,7 +43,7 @@ const routes = [
     path: "/pay", // 支付页
     name: "pay",
     component: () => import(/* webpackChunkName: "pay" */ "../page/pay/index.vue")
-  }
+  },
 ];
 
 const router = new VueRouter({

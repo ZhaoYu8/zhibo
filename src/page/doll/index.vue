@@ -44,11 +44,12 @@
         </div>
       </div>
       <div class="play">
-        <div class="play-time"><van-count-down :time="time" format="ss" @finish="playType = true" />S</div>
+        <div class="play-time"><van-count-down :time="time" format="ss" @finish="finish" />S</div>
         <div class="play-button" @click="play">GO</div>
       </div>
     </div>
     <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
+    <animation v-if="existence" :time="endTime + 7"> </animation>
   </div>
 </template>
 
@@ -56,6 +57,9 @@
 import game from "@/mixin/game";
 export default {
   mixins: [game],
+  components: {
+    animation: () => import("@/components/animation")
+  },
   data() {
     return {
       time: 30 * 1000,
@@ -67,6 +71,7 @@ export default {
     };
   },
   activated() {
+    this.playType = true;
     let num = this.options.webrtc.lastIndexOf("/") + 1;
     this.webrtc = this.options.webrtc.substring(0, num) + (Number(this.options.webrtc.substring(num)) + 1);
     this.$bus.$emit("toggleVideo", this.webrtc);
@@ -119,7 +124,21 @@ export default {
       setTimeout(() => {
         this.playType = !this.playType;
         this.$bus.$emit("updateInfo");
-      }, 7000);
+        this.queryPrize();
+      }, 10000);
+    },
+    finish() {
+      this.playType = true;
+      this.queryPrize();
+    },
+    // 查询中奖信息
+    async queryPrize() {
+      let res = await this.$get("coin/queryPrize", {
+        userId: this.user.user.userId,
+        coinId: this.coinId
+      });
+      let result = res.data.result;
+      this.$toast(result.returnNumber === 1 ? '恭喜你中奖了': '很遗憾你没有中奖!');
     },
     // 调整摄像头
     toggleVideo() {
@@ -171,7 +190,7 @@ export default {
     position: absolute;
     bottom: 200px;
     right: 0;
-    z-index: 2;
+    z-index: 3;
     background-color: #0b4367;
     padding: 8px;
     border-radius: 5px;

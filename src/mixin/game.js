@@ -13,7 +13,8 @@ export default {
         queue: []
       },
       webrtc: "",
-      machineSetInterVal: "" // 机器状态的 setInterVal 的缓存
+      machineSetInterVal: "", // 机器状态的 setInterVal 的缓存
+      endTime: 0
     };
   },
   beforeDestroy() {
@@ -51,6 +52,7 @@ export default {
       });
       this.ointmentList = data.result[this.coinId];
       this.status = res.data.result;
+      this.endTime = this.$moment(this.status.pushTime).diff(new Date(), "second");
       // 成功了之后回调 应为二个游戏 回调逻辑不一样
       if (this.machineStatusCallBack) this.machineStatusCallBack();
     },

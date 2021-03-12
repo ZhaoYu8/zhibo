@@ -28,6 +28,7 @@ module.exports = {
   },
   configureWebpack: (config) => {
     config["externals"] = {
+      moment: "moment",
       vue: "Vue",
       Vuex: "Vuex",
       "vue-router": "VueRouter"
