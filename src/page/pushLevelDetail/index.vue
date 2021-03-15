@@ -19,7 +19,7 @@
       </van-row>
       <transition name="el-fade-in-linear">
         <!-- 只有状态是1的时候才能投币 -->
-        <div class="dis-flex flex-x-around mb-20 m" v-if="status.statusId === 1">
+        <div class="dis-flex flex-x-around" v-if="status.statusId === 1">
           <div @click="pushCurrency" class="action">
             <svgs :type="2"></svgs>
           </div>

@@ -5,7 +5,7 @@
     </div>
     <div class="recharge-box">
       <div class="card">
-        <rechargeCard :item="arr" col="47.5%" num="2"></rechargeCard>
+        <rechargeCard :item="arr" col="47.5%" num="2" @click="moneyClose"></rechargeCard>
       </div>
     </div>
   </van-popup>
@@ -65,11 +65,22 @@ export default {
       deep: true
     }
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     close() {
       this.$emit("input", this.show);
+    },
+    moneyClose() {
+      this.$dialog.alert({
+        title: "提示",
+        message: "更新游戏币",
+        theme: "round-button",
+        beforeClose: (action, done) => {
+          this.$bus.$emit("globalInit");
+          done();
+        }
+      });
+      this.$emit("input", false);
     }
   }
 };

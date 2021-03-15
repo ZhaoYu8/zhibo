@@ -57,6 +57,9 @@ export default {
           console.log("success"); //页面跳转成功的回调函数
         }
       });
+      setTimeout(() => {
+        this.$emit("click");
+      }, 1000);
     }
   }
 };

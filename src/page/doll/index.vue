@@ -40,12 +40,12 @@
     <div v-if="status.statusId === 1 && !playType" class="control">
       <div class="control-buttons">
         <div class="circle" :class="'circle' + item" v-for="item in 4" :key="item">
-          <van-icon name="play" class="triangle" :class="'triangle' + item" @click="direction(item)" />
+          <van-icon name="play" class="triangle" :class="[{ 'triangle-disabled': !state }, 'triangle' + item]" @click="direction(item)" />
         </div>
       </div>
       <div class="play">
         <div class="play-time"><van-count-down :time="time" format="ss" @finish="finish" />S</div>
-        <div class="play-button" @click="play">GO</div>
+        <div class="play-button" @click="play" :class="{ 'play-button-disabled': !state }">GO</div>
       </div>
     </div>
     <recharge v-model="rechargeShow" :show="rechargeShow"></recharge>
@@ -67,7 +67,8 @@ export default {
       rechargeShow: false, // 控制显示充值页面
       camera: true, // 控制调整摄像头
       audio: "",
-      readyType: false
+      readyType: false,
+      state: false // 游戏确认状态
     };
   },
   activated() {
@@ -104,6 +105,8 @@ export default {
       if (!this.audio) this.audio = new Audio(require("../../assets/1.mp3")); //这里的路径写上mp3文件在项目中的绝对路径
       this.audio.play(); //播放
       this.playType = false;
+      this.state = true; // 是可以点击的
+      // 出现 ready go 文字效果
       this.readyType = true;
       setTimeout(() => {
         this.readyType = false;
@@ -111,22 +114,34 @@ export default {
     },
     // 调整方向  // 9：前； 10:左； 11： 右； 12： 后； 13： 下
     direction(item) {
+      if (!this.state) {
+        this.$toast("不能再移动了!");
+        return;
+      }
       this.$get("coin/Move", {
         coinId: this.coinId,
         moveType: [0, 9, 10, 11, 12][item]
       });
     },
-    play() {
-      this.$get("coin/Move", {
+    // 下抓
+    async play() {
+      if (!this.state) {
+        this.$toast("不能继续下抓了!");
+        return;
+      }
+      await this.$get("coin/Move", {
         coinId: this.coinId,
         moveType: 13
       });
+      this.state = false;
+      // 10秒后查询有没有中奖
       setTimeout(() => {
         this.playType = !this.playType;
         this.$bus.$emit("updateInfo");
         this.queryPrize();
       }, 10000);
     },
+    // 倒计时结束 触发
     finish() {
       this.playType = true;
       this.queryPrize();
@@ -138,7 +153,7 @@ export default {
         coinId: this.coinId
       });
       let result = res.data.result;
-      this.$toast(result.returnNumber === 1 ? '恭喜你中奖了': '很遗憾你没有中奖!');
+      this.$toast(result.returnNumber === 1 ? "恭喜你中奖了" : "很遗憾你没有中奖!");
     },
     // 调整摄像头
     toggleVideo() {
@@ -318,9 +333,15 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.3s;
         &:active {
-          transition: all 0.3s;
           transform: translate3d(0, 3px, 0);
+        }
+        &-disabled {
+          background-color: #ccc;
+          &:active {
+            transform: none;
+          }
         }
       }
     }

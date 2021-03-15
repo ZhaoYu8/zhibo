@@ -3,7 +3,7 @@
     <Header> <span class="f-b">充值</span></Header>
     <van-tabs v-model="active" animated swipeable background="transparent" color="#1989fa" title-active-color="#1989fa">
       <van-tab v-for="item in arr" :title="item.label" :key="item.label">
-        <rechargeCard :item="item.data" class="box"></rechargeCard>
+        <rechargeCard :item="item.data" class="box" @click="moneyClose"></rechargeCard>
       </van-tab>
     </van-tabs>
   </div>
@@ -58,6 +58,19 @@ export default {
       },
       immediate: true,
       deep: true
+    }
+  },
+  methods: {
+    moneyClose() {
+      this.$dialog.alert({
+        title: "提示",
+        message: "更新游戏币",
+        theme: "round-button",
+        beforeClose: (action, done) => {
+          this.$bus.$emit("globalInit");
+          done();
+        }
+      });
     }
   },
   mounted() {}

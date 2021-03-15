@@ -3,17 +3,17 @@
     <Header>
       <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="ml-10 f-b f-22">{{ user.nickname }}</span></Header
     >
-    <div>
+    <!-- <div>
       <van-button type="primary" @click="add">测试加币</van-button>
-    </div>
-    <!-- <div class="box-swipe">
+    </div> -->
+    <div class="box-swipe">
       <van-swipe class="swipe" :autoplay="8000" indicator-color="#FB605C">
         <van-swipe-item v-for="(image, index) in images" :key="index">
           <van-image class="swipe-image" fit="cover" :src="image"></van-image>
         </van-swipe-item>
       </van-swipe>
-    </div> -->
-    <!-- <van-grid :column-num="5" class="grid">
+    </div> 
+   <!-- <van-grid :column-num="5" class="grid">
       <van-grid-item v-for="item in arr" :key="item.name" icon-prefix="my-icon" icon="gengduo" :text="item.name">
         <template #icon>
           <Icon :icon="`#${item.icon}`"></Icon>
@@ -22,7 +22,7 @@
           <div class="mt-10 f-b">{{ item.name }}</div>
         </template>
       </van-grid-item>
-    </van-grid> -->
+    </van-grid>  -->
     <van-tabs v-model="active" swipeable color="#fbe752" class="box-tabs">
       <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
         <van-row class="machine" gutter="10">
@@ -43,7 +43,10 @@
                 </template>
               </div>
               <div class="machine-box-icon" @click="boxClick(item, row)">
-                <icon :type="!row.current" />
+                <template v-if="row.current && Number(row.current.userId) !== Number(user.userId)">
+                  <icon :type="false" />
+                </template>
+                <icon :type="true" v-else />
               </div>
             </div>
           </van-col>
