@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div @click="goBack" class="dis-flex flex-y-center">
-      <icon />
+      <Icon icon="fanhui" />
     </div>
     <transition name="el-fade-in-linear">
       <div class="header-current" v-if="list.current">
@@ -30,9 +30,7 @@
 
 <script>
 export default {
-  components: {
-    icon: () => import("./components/icon")
-  },
+  components: {},
   props: {
     list: {
       type: Object,

@@ -5,12 +5,11 @@
     </div>
     <ul class="header-money">
       <li class="flex" @click="type = true">
-        <van-icon name="gem" class="gem" />
+        <Icon icon="zuanshi" class="gem" fontSize="26"></Icon>
         <span>{{ user.coin }}</span>
-        <div class="header-money-button">充值</div>
       </li>
       <li class="flex">
-        <van-icon name="gold-coin" class="gold" />
+        <Icon icon="jinbi" class="gem" fontSize="26"></Icon>
         <span>{{ user.point }}</span>
       </li>
     </ul>
@@ -29,15 +28,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.user;
-    }
-  },
-  props: {},
-  watch: {
-    $route: {
-      handler: function(val) {
-      },
-      immediate: true
+      return this.$store.state.user || {};
     }
   },
   mounted() {}
@@ -59,37 +50,46 @@ export default {
     width: 36px;
     height: 36px;
   }
-  .gem {
-    color: #d97599;
-    font-size: 16px;
-    margin-right: 5px;
-  }
-  .gold {
-    @extend .gem;
-    color: #fff377;
+  &-name {
+    color: $pro-text-color;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 10px;
   }
   &-money {
     @extend .flex;
     li {
-      background-color: rgba(0, 0, 0, 0.4);
-      padding: 0 10px;
-      margin-left: 10px;
+      background-color: #eeeeee;
+      padding: 0 30px;
       border-radius: 20px;
-      overflow: hidden;
-      height: 26px;
-      font-size: 12px;
-      padding-left: 10px;
-      color: #fff;
+      line-height: 22px;
+      font-size: 14px;
+      color: #404040;
+      position: relative;
+      font-weight: bold;
+      margin-right: 10px;
+      .gem {
+        position: absolute;
+        left: -10px;
+      }
     }
-    &-button {
-      font-size: 10px;
-      background-color: #fb605c;
-      border: 1px solid #e0493d;
-      border-radius: 20px;
-      padding: 5px 10px;
-      white-space: nowrap;
-      margin-left: 5px;
-      margin-right: -10px;
+    li:first-child {
+      margin-right: 20px;
+      &::after {
+        @extend .flex;
+        justify-content: center;
+        content: "+";
+        background-color: #fb605c;
+        border: 1px solid #e0493d;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        color: #fff;
+        font-size: 24px;
+        position: absolute;
+        right: 0;
+        font-weight: 100;
+      }
     }
   }
 }

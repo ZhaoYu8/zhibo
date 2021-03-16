@@ -1,18 +1,22 @@
 <template>
-  <svg aria-hidden="true" class="icon">
-    <use :xlink:href="icon" />
+  <svg aria-hidden="true" class="icon" :style="{ fontSize: fontSize + 'px' }">
+    <use :xlink:href="'#my-icon-' + icon" />
   </svg>
 </template>
 <script>
 export default {
-  naem: 'icon',
+  naem: "icon",
   data() {
     return {};
   },
   props: {
     icon: {
       type: String,
-      default: ''
+      default: ""
+    },
+    fontSize: {
+      type: String,
+      default: "24"
     }
   },
   computed: {},
@@ -20,4 +24,11 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
 </style>

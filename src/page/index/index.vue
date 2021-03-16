@@ -1,32 +1,45 @@
 <template>
   <div class="home">
     <Header>
-      <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="ml-10 f-b f-22">{{ user.nickname }}</span></Header
+      <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span></Header
     >
     <!-- <div>
       <van-button type="primary" @click="add">测试加币</van-button>
     </div> -->
-    <div class="box-swipe">
-      <van-swipe class="swipe" :autoplay="8000" indicator-color="#FB605C">
-        <van-swipe-item v-for="(image, index) in images" :key="index">
-          <van-image class="swipe-image" fit="cover" :src="image"></van-image>
-        </van-swipe-item>
-      </van-swipe>
-    </div> 
-   <!-- <van-grid :column-num="5" class="grid">
-      <van-grid-item v-for="item in arr" :key="item.name" icon-prefix="my-icon" icon="gengduo" :text="item.name">
-        <template #icon>
-          <Icon :icon="`#${item.icon}`"></Icon>
-        </template>
-        <template #text>
-          <div class="mt-10 f-b">{{ item.name }}</div>
-        </template>
-      </van-grid-item>
-    </van-grid>  -->
-    <van-tabs v-model="active" swipeable color="#fbe752" class="box-tabs">
-      <van-tab :title="item.label" v-for="item in list" :key="item.coinType">
-        <van-row class="machine" gutter="10">
-          <van-col :span="24" v-for="row in item.arr" :key="row.id">
+    <transition :name="type ? 'van-slide-right' : 'van-slide-left'" mode="out-in">
+      <div v-if="type" key="save">
+        <div class="box-swipe">
+          <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
+            <van-swipe-item v-for="(image, index) in images" :key="index">
+              <van-image class="swipe-image" fit="cover" :src="image"></van-image>
+            </van-swipe-item>
+          </van-swipe>
+        </div>
+        <van-row class="grid">
+          <van-col span="6" v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
+            <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
+            <div class="mt-10 f-b">{{ item.name }}</div>
+          </van-col>
+        </van-row>
+        <van-row class="mt-10 toy" gutter="10">
+          <van-col span="12" class="toy-col" @click="hanlderChange(0)">
+            <div class="toy-video">
+              <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4" muted autoplay playsinline loop ref="video1"></video>
+            </div>
+          </van-col>
+          <van-col span="12" class="toy-col" @click="hanlderChange(1)">
+            <div class="toy-video">
+              <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4" ref="video2" muted autoplay playsinline loop></video>
+            </div>
+          </van-col>
+        </van-row>
+      </div>
+      <div v-if="!type" key="edit">
+        <div @click="type = !type">
+          <Icon icon="fanhui" />
+        </div>
+        <van-grid class="machine" :border="false" :column-num="2">
+          <van-grid-item v-for="row in machineList" :key="row.id">
             <div class="machine-box">
               <img class="machine-box-image" :src="require('../../assets/default.jpg')" @click="Play(item, row)" />
               <div class="machine-box-header">
@@ -49,10 +62,11 @@
                 <icon :type="true" v-else />
               </div>
             </div>
-          </van-col>
-        </van-row>
-      </van-tab>
-    </van-tabs>
+          </van-grid-item>
+        </van-grid>
+      </div>
+    </transition>
+    <!-- -->
   </div>
 </template>
 
@@ -64,6 +78,7 @@ export default {
   },
   data() {
     return {
+      type: true,
       active: 0,
       list: [
         {
@@ -85,15 +100,11 @@ export default {
           url: "doll"
         }
       ],
-      images: ["https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://img.yzcdn.cn/vant/apple-1.jpg", "https://img.yzcdn.cn/vant/apple-2.jpg"],
+      machineList: [],
+      images: ["https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://s3.ax1x.com/2021/01/12/sGx2Ss.png"],
       interval: null,
-      arr: [
-        { name: "每日任务", icon: "my-icon-wode1" },
-        { name: "会员奖励", icon: "my-icon-gengduo" },
-        { name: "在线客服", icon: "my-icon-gouwu" },
-        { name: "游戏说明", icon: "my-icon-fenlei" },
-        { name: "我的礼品", icon: "my-icon-shouye" }
-      ]
+      swipeList: [{ name: "游戏说明" }, { name: "新人奖励" }, { name: "兑换奖品" }, { name: "在线客服" }],
+      current: 0
     };
   },
   beforeDestroy() {
@@ -108,6 +119,11 @@ export default {
     }
   },
   methods: {
+    hanlderChange(index) {
+      this.type = !this.type;
+      this.current = index + 1;
+      this.init();
+    },
     add() {
       this.$post(`userCoin/setVal?userId=${this.user.userId}&num=1000`, {}, true);
       this.$bus.$emit("globalInit");
@@ -117,20 +133,16 @@ export default {
       let res = await this.$get("coin/list");
       let { data } = await this.$get("coin/AppointmentList");
       res = res.data.result;
-      this.list.map((r) => {
-        r.arr = [];
-      });
       // isOnline 是否在线 coinType 0 1 2
-      res.map((r, i) => {
-        // if (!r.isOnline) return;
-        if (this.list[r.coinType - 1]) {
-          if (data.result[r.coinId]) {
-            r = { ...r, ...data.result[r.coinId] };
+      this.machineList = res
+        .map((r, i) => {
+          // if (!r.isOnline) return;
+          if (Number(r.coinType) === Number(this.current)) {
+            return { ...r, ...data.result[r.coinId] };
           }
-          this.list[r.coinType - 1].arr.push(r);
-        }
-      });
-
+        })
+        .filter((r) => r);
+      console.log(this.machineList);
       // this.list.map((r, i) => {
       //   let o = res.data.result.filter((n) => n.coinId === r.coinId)[0];
       //   this.$set(this.list[i], "statusId", o.statusId);
@@ -156,11 +168,17 @@ export default {
       });
     }
   },
-  activated() {
-    this.init();
-    this.interval = setInterval(() => {
-      this.init();
-    }, 3000);
+  activated() {},
+  mounted() {
+    // 让首页二个视频播放 视频已经压缩过了。
+    document.addEventListener(
+      "WeixinJSBridgeReady",
+      () => {
+        this.$refs.video1.play();
+        this.$refs.video2.play();
+      },
+      false
+    );
   }
 };
 </script>
@@ -170,29 +188,21 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.gem {
-  color: #d97599;
-  font-size: 16px;
-  margin-right: 5px;
-}
 .home {
   height: calc(100% - 50px) !important;
   display: flex;
   flex-direction: column;
   padding: 10px;
-  background-color: $pro-color;
   font-size: 12px;
-  overflow-y: hidden;
+  overflow-x: hidden;
   .box-swipe {
-    padding: 10px 10px 20px;
-    margin-bottom: 10px;
+    margin: 5px 0 10px;
     background-color: #fff;
     position: relative;
-    border-radius: 10px;
     .swipe {
       position: initial;
       font-size: 20px;
-      height: 130px;
+      height: 160px;
       &-image {
         width: 100%;
         height: 100%;
@@ -203,14 +213,60 @@ export default {
         .van-swipe__indicator {
           height: 8px;
           width: 8px;
-          background-color: #fbe752;
           opacity: 1;
         }
       }
     }
   }
   .grid {
-    margin-bottom: 10px;
+    background-color: #f8f8f8;
+    padding: 10px 0;
+    color: #70591d;
+    font-size: 10px;
+    font-weight: bold;
+    &-img {
+      height: 50px;
+      width: 50px;
+    }
+  }
+  .toy {
+    &-video {
+      height: 200px;
+      border-radius: 4px;
+      position: relative;
+      video {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        object-position: 0% 80%;
+      }
+      &::after {
+        content: "推币机";
+        color: #fff;
+        height: 30px;
+        display: inline-flex;
+        width: 100%;
+        font-size: 12px;
+        font-weight: bold;
+        justify-content: center;
+        align-items: center;
+        background-color: #d8d4d4;
+        margin-top: -4px;
+        z-index: 10;
+      }
+    }
+    &-col {
+      &:last-child {
+        .toy-video {
+          &::after {
+            content: "娃娃机";
+          }
+          video {
+            object-position: 0% 20%;
+          }
+        }
+      }
+    }
   }
   .box-tabs {
     flex: 1;
@@ -227,11 +283,11 @@ export default {
   }
   .machine {
     background-color: #fff;
+    padding: 0 !important;
     @extend .flex;
     flex-wrap: wrap;
     &-box {
       border-radius: 5px;
-      margin: 10px 10px 0 10px;
       position: relative;
       overflow: hidden;
       &-image {

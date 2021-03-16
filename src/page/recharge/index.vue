@@ -80,7 +80,6 @@ export default {
 .recharge {
   font-size: 24px;
   padding: 10px;
-  background-color: $pro-color;
   .box {
     ::v-deep .recharge-card-coins:nth-child(3n + 0) {
       margin-right: 0;
