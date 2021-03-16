@@ -3,54 +3,74 @@
     <Header>
       <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span>
     </Header>
-    <div v-show="type">
-      <div class="box-swipe">
-        <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
-          <van-swipe-item v-for="(image, index) in images" :key="index">
-            <van-image class="swipe-image" fit="cover" :src="image"></van-image>
-          </van-swipe-item>
-        </van-swipe>
-      </div>
-      <van-row class="grid">
-        <van-col span="6" v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
-          <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
-          <div class="mt-10 f-b">{{ item.name }}</div>
-        </van-col>
-      </van-row>
-      <van-row class="mt-10 toy" gutter="10">
-        <van-col span="12" class="toy-col" @click="hanlderChange(0)">
-          <div class="toy-video">
-            <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4" muted autoplay playsinline loop ref="video1"></video>
+    <div class="home-box">
+      <transition name="van-slide-down">
+        <div v-if="type">
+          <div class="box-swipe">
+            <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
+              <van-swipe-item v-for="(image, index) in images" :key="index">
+                <van-image class="swipe-image" fit="cover" :src="image"></van-image>
+              </van-swipe-item>
+            </van-swipe>
           </div>
-        </van-col>
-        <van-col span="12" class="toy-col" @click="hanlderChange(1)">
-          <div class="toy-video">
-            <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4" ref="video2" muted autoplay playsinline loop></video>
-          </div>
-        </van-col>
-      </van-row>
-    </div>
-    <div v-show="!type">
-      <div @click="type = !type">
-        <Icon icon="fanhui" fontSize="30" />
-      </div>
-      <van-grid class="machine" :border="false" :column-num="2">
-        <van-grid-item v-for="(row, index) in machineList" :key="row.id">
-          <div class="machine-box" @click="play(row)">
-            <img class="machine-box-image" :src="require(`../../assets/${current === 1 ? 'tuibi' : 'wawa'}.jpg`)" />
-            <div class="machine-box-header">
-              <div>
-                {{ current === 1 ? "1" : "5" }}
-                <Icon icon="jinbi" fontSize="15" />
+          <van-row class="grid">
+            <van-col span="6" v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
+              <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
+              <div class="mt-10 f-b">{{ item.name }}</div>
+            </van-col>
+          </van-row>
+          <van-row class="mt-10 toy" gutter="10">
+            <van-col span="12" class="toy-col" @click="hanlderChange(0)">
+              <div class="toy-video">
+                <video
+                  src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4"
+                  muted
+                  autoplay
+                  playsinline
+                  loop
+                  ref="video1"
+                ></video>
               </div>
-              <div class="machine-box-header-type" :class="{ 'machine-box-header-type-host': row.pushUserId !== '-1' }">
-                <div>{{ row.pushUserId === "-1" ? "空闲中" : "热玩中" }}</div>
+            </van-col>
+            <van-col span="12" class="toy-col" @click="hanlderChange(1)">
+              <div class="toy-video">
+                <video
+                  src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4"
+                  ref="video2"
+                  muted
+                  autoplay
+                  playsinline
+                  loop
+                ></video>
               </div>
-            </div>
-            <div class="machine-box-text">{{ current === 1 ? "推币机" : "娃娃机" }} {{ index + 1 }}</div>
+            </van-col>
+          </van-row>
+        </div>
+      </transition>
+      <transition name="van-slide-up">
+        <div v-if="!type">
+          <div @click="type = !type">
+            <Icon icon="fanhui" fontSize="30" />
           </div>
-        </van-grid-item>
-      </van-grid>
+          <van-grid class="machine" :border="false" :column-num="2">
+            <van-grid-item v-for="(row, index) in machineList" :key="row.id">
+              <div class="machine-box" @click="play(row)">
+                <img class="machine-box-image" :src="require(`../../assets/${current === 1 ? 'tuibi' : 'wawa'}.jpg`)" />
+                <div class="machine-box-header">
+                  <div>
+                    {{ current === 1 ? "1" : "5" }}
+                    <Icon icon="jinbi" fontSize="15" />
+                  </div>
+                  <div class="machine-box-header-type" :class="{ 'machine-box-header-type-host': row.pushUserId !== '-1' }">
+                    <div>{{ row.pushUserId === "-1" ? "空闲中" : "热玩中" }}</div>
+                  </div>
+                </div>
+                <div class="machine-box-text">{{ current === 1 ? "推币机" : "娃娃机" }} {{ index + 1 }}</div>
+              </div>
+            </van-grid-item>
+          </van-grid>
+        </div>
+      </transition>
     </div>
     <!-- -->
   </div>
@@ -135,7 +155,7 @@ export default {
     }
   },
   activated() {
-    // 让首页二个视频播放 视频已经压缩过了。 
+    // 让首页二个视频播放 视频已经压缩过了。
     // 监听浏览器返回
     window.addEventListener(
       "popstate",
@@ -179,6 +199,9 @@ export default {
   padding: 10px;
   font-size: 12px;
   overflow-x: hidden;
+  &-box {
+    margin-top: 40px;
+  }
   .box-swipe {
     margin: 5px 0 10px;
     background-color: #fff;
