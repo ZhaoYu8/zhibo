@@ -1,71 +1,57 @@
 <template>
   <div class="home">
     <Header>
-      <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span></Header
-    >
-    <!-- <div>
-      <van-button type="primary" @click="add">测试加币</van-button>
-    </div> -->
-    <transition :name="type ? 'van-slide-right' : 'van-slide-left'" mode="out-in">
-      <div v-if="type" key="save">
-        <div class="box-swipe">
-          <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
-            <van-swipe-item v-for="(image, index) in images" :key="index">
-              <van-image class="swipe-image" fit="cover" :src="image"></van-image>
-            </van-swipe-item>
-          </van-swipe>
-        </div>
-        <van-row class="grid">
-          <van-col span="6" v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
-            <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
-            <div class="mt-10 f-b">{{ item.name }}</div>
-          </van-col>
-        </van-row>
-        <van-row class="mt-10 toy" gutter="10">
-          <van-col span="12" class="toy-col" @click="hanlderChange(0)">
-            <div class="toy-video">
-              <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4" muted autoplay playsinline loop ref="video1"></video>
-            </div>
-          </van-col>
-          <van-col span="12" class="toy-col" @click="hanlderChange(1)">
-            <div class="toy-video">
-              <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4" ref="video2" muted autoplay playsinline loop></video>
-            </div>
-          </van-col>
-        </van-row>
+      <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span>
+    </Header>
+    <div v-show="type">
+      <div class="box-swipe">
+        <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
+          <van-swipe-item v-for="(image, index) in images" :key="index">
+            <van-image class="swipe-image" fit="cover" :src="image"></van-image>
+          </van-swipe-item>
+        </van-swipe>
       </div>
-      <div v-if="!type" key="edit">
-        <div @click="type = !type">
-          <Icon icon="fanhui" />
-        </div>
-        <van-grid class="machine" :border="false" :column-num="2">
-          <van-grid-item v-for="row in machineList" :key="row.id">
-            <div class="machine-box">
-              <img class="machine-box-image" :src="require('../../assets/default.jpg')" @click="Play(item, row)" />
-              <div class="machine-box-header">
-                <div class="machine-box-header-type" v-if="row.pushUserId === '-1'">空闲中</div>
-                <template v-else>
-                  <div v-if="row.current" class="machine-box-header-current">
-                    <van-image :src="row.current.avatar" fit="cover" class="big-img"> </van-image>
-                    <div class="machine-box-header-current-text">游戏中</div>
-                  </div>
-                  <div v-if="row.queue && row.queue.length" class="machine-box-header-queue">
-                    <van-image :src="n.avatar" v-for="n in row.queue" :key="n.id" fit="cover" class="img"> </van-image>
-                    <div class="machine-box-header-queue-text">{{ row.queue && row.queue.length }}人排队中</div>
-                  </div>
-                </template>
+      <van-row class="grid">
+        <van-col span="6" v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
+          <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
+          <div class="mt-10 f-b">{{ item.name }}</div>
+        </van-col>
+      </van-row>
+      <van-row class="mt-10 toy" gutter="10">
+        <van-col span="12" class="toy-col" @click="hanlderChange(0)">
+          <div class="toy-video">
+            <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4" muted autoplay playsinline loop ref="video1"></video>
+          </div>
+        </van-col>
+        <van-col span="12" class="toy-col" @click="hanlderChange(1)">
+          <div class="toy-video">
+            <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4" ref="video2" muted autoplay playsinline loop></video>
+          </div>
+        </van-col>
+      </van-row>
+    </div>
+    <div v-show="!type">
+      <div @click="type = !type">
+        <Icon icon="fanhui" fontSize="30" />
+      </div>
+      <van-grid class="machine" :border="false" :column-num="2">
+        <van-grid-item v-for="(row, index) in machineList" :key="row.id">
+          <div class="machine-box" @click="play(row)">
+            <img class="machine-box-image" :src="require(`../../assets/${current === 1 ? 'tuibi' : 'wawa'}.jpg`)" />
+            <div class="machine-box-header">
+              <div>
+                {{ current === 1 ? "1" : "5" }}
+                <Icon icon="jinbi" fontSize="15" />
               </div>
-              <div class="machine-box-icon" @click="boxClick(item, row)">
-                <template v-if="row.current && Number(row.current.userId) !== Number(user.userId)">
-                  <icon :type="false" />
-                </template>
-                <icon :type="true" v-else />
+              <div class="machine-box-header-type" :class="{ 'machine-box-header-type-host': row.pushUserId !== '-1' }">
+                <div>{{ row.pushUserId === "-1" ? "空闲中" : "热玩中" }}</div>
               </div>
             </div>
-          </van-grid-item>
-        </van-grid>
-      </div>
-    </transition>
+            <div class="machine-box-text">{{ current === 1 ? "推币机" : "娃娃机" }} {{ index + 1 }}</div>
+          </div>
+        </van-grid-item>
+      </van-grid>
+    </div>
     <!-- -->
   </div>
 </template>
@@ -79,32 +65,11 @@ export default {
   data() {
     return {
       type: true,
-      active: 0,
-      list: [
-        {
-          arr: [],
-          label: "推币机",
-          coinType: 1,
-          url: "pushLevelDetail"
-        },
-        {
-          arr: [],
-          label: "娃娃机",
-          coinType: 2,
-          url: "doll"
-        },
-        {
-          arr: [],
-          label: "欢乐球",
-          coinType: 3,
-          url: "doll"
-        }
-      ],
       machineList: [],
       images: ["https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://s3.ax1x.com/2021/01/12/sGx2Ss.png"],
       interval: null,
       swipeList: [{ name: "游戏说明" }, { name: "新人奖励" }, { name: "兑换奖品" }, { name: "在线客服" }],
-      current: 0
+      current: 1
     };
   },
   beforeDestroy() {
@@ -120,13 +85,13 @@ export default {
   },
   methods: {
     hanlderChange(index) {
+      clearInterval(this.interval);
       this.type = !this.type;
       this.current = index + 1;
       this.init();
-    },
-    add() {
-      this.$post(`userCoin/setVal?userId=${this.user.userId}&num=1000`, {}, true);
-      this.$bus.$emit("globalInit");
+      this.interval = setInterval(() => {
+        this.init();
+      }, 3000);
     },
     async init() {
       // 查询机器状态
@@ -142,7 +107,6 @@ export default {
           }
         })
         .filter((r) => r);
-      console.log(this.machineList);
       // this.list.map((r, i) => {
       //   let o = res.data.result.filter((n) => n.coinId === r.coinId)[0];
       //   this.$set(this.list[i], "statusId", o.statusId);
@@ -160,17 +124,37 @@ export default {
         query: { coinId: row.coinId, webrtc: row.videoUrl }
       });
     },
-    Play(item, row) {
+    play(row) {
       clearInterval(this.interval);
+      let arr = ["pushLevelDetail", "doll"];
+      this.type = !this.type;
       this.$router.push({
-        path: item.url,
+        path: arr[this.current - 1],
         query: { coinId: row.coinId, webrtc: row.videoUrl }
       });
     }
   },
-  activated() {},
-  mounted() {
-    // 让首页二个视频播放 视频已经压缩过了。
+  activated() {
+    // 让首页二个视频播放 视频已经压缩过了。 
+    // 监听浏览器返回
+    window.addEventListener(
+      "popstate",
+      () => {
+        if (this.$refs.video1) {
+          this.$refs.video1.play();
+          this.$refs.video2.play();
+        }
+      },
+      false
+    );
+    // 监听 点击事件
+    document.addEventListener("click", () => {
+      if (this.$refs.video1) {
+        this.$refs.video1.play();
+        this.$refs.video2.play();
+      }
+    });
+    // 监听微信 jsapi 的事件
     document.addEventListener(
       "WeixinJSBridgeReady",
       () => {
@@ -268,22 +252,10 @@ export default {
       }
     }
   }
-  .box-tabs {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    ::v-deep .van-tabs__nav {
-      padding-bottom: 12px;
-    }
-    ::v-deep .van-tabs__content {
-      flex: 1;
-      overflow-y: auto;
-    }
-  }
   .machine {
     background-color: #fff;
     padding: 0 !important;
+    margin: 0 -10px;
     @extend .flex;
     flex-wrap: wrap;
     &-box {
@@ -299,76 +271,43 @@ export default {
       &-header {
         position: absolute;
         left: 0;
-        top: 0;
-        padding: 10px 20px;
-        width: 100%;
+        bottom: 30px;
         background-color: rgba($color: #000000, $alpha: 0.5);
         z-index: 2;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        color: #fff;
+        padding: 5px 10px;
+        font-size: 15px;
         &-type {
-          background-color: #02f795;
+          background-color: #1eb91e;
           display: inline-block;
-          padding: 3px 6px;
-          border-radius: 6px;
-          color: #491414;
-          font-size: 10px;
-        }
-        .img {
-          border-radius: 50%;
-          height: 25px;
-          width: 25px;
-          overflow: hidden;
-          margin-right: 10px;
-          border: 2px solid #fff;
-        }
-        .big-img {
-          @extend .img;
-          height: 36px;
-          width: 36px;
-          margin-right: 0;
-        }
-        &-current {
-          display: inline-flex;
-          flex-direction: column;
-          align-items: center;
-          &-text {
-            display: inline-block;
-            padding: 2px 4px;
-            background-color: #f7d402;
-            border-radius: 6px;
-            color: #491414;
-            font-size: 8px;
-            height: 12px;
-            line-height: 12px;
-            margin-top: -4px;
-            z-index: 999;
+          border-radius: 15px;
+          color: #fff;
+          div {
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 8px;
           }
         }
-        &-queue {
-          flex: 1;
-          margin-left: 15px;
-          position: relative;
-          &-text {
-            position: absolute;
-            bottom: -15px;
-            left: 0;
-            display: inline-block;
-            padding: 2px 4px;
-            background-color: #02c5f7;
-            border-radius: 6px;
-            color: #491414;
-            font-size: 8px;
-            height: 12px;
-            line-height: 12px;
-          }
+        &-type-host {
+          background-color: #f76c02;
         }
       }
-      &-icon {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
+      &-text {
+        height: 30px;
+        line-height: 30px;
+        background-color: #eeeeee;
+        font-size: 12px;
+        font-family: PingFang SC;
+        font-weight: bold;
+        padding: 0 10px;
       }
+    }
+    ::v-deep .van-grid-item__content {
+      padding-bottom: 0px;
     }
   }
 }

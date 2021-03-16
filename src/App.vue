@@ -2,11 +2,11 @@
   <div id="app">
     <Video></Video>
     <keep-alive>
-      <router-view class="router" style="margin-bottom: 50px" />
+      <router-view class="router"/>
     </keep-alive>
-    <van-tabbar v-model="active" @change="onChange">
+    <!-- <van-tabbar v-model="active" @change="onChange">
       <van-tabbar-item :to="'/' + item.url" v-for="item in arr" :icon="item.icon" :key="item.name">{{ item.name }}</van-tabbar-item>
-    </van-tabbar>
+    </van-tabbar> -->
   </div>
 </template>
 <script>
