@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Header>
+    <Header @dblclick="hanlderDblclick">
       <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span>
     </Header>
     <div class="home-box">
@@ -78,9 +78,18 @@
         </div>
       </transition>
     </div>
-    <van-list v-model="loading" :finished="finished" :immediate-check="false" finished-text="没有更多了" @load="onLoad">
-      <van-cell v-for="item in list" :key="item" :title="item" />
-    </van-list>
+    <div class="prize">
+      <div class="prize-show">奖品展示</div>
+      <van-list v-model="loading" :finished="finished" :immediate-check="false" finished-text="没有更多了" @load="onLoad">
+        <van-row :gutter="10">
+          <van-col :span="6" v-for="item in list" :key="item" class="product" @click="hanlderProduct(item)">
+            <van-image class="product-image" fit="cover" :src="item.list_pic_url"></van-image>
+            <div class="product-name">{{ item.name }}</div>
+            <div class="product-price">￥ {{ item.retail_price }}</div>
+          </van-col>
+        </van-row>
+      </van-list>
+    </div>
 
     <!-- -->
   </div>
@@ -102,7 +111,11 @@ export default {
       current: 1,
       list: [],
       loading: false,
-      finished: false
+      finished: false,
+      listQuery: {
+        page: 1,
+        size: 10
+      }
     };
   },
   beforeDestroy() {
@@ -117,8 +130,27 @@ export default {
     }
   },
   methods: {
-    onLoad() {
-      console.log(123);
+    hanlderDblclick() {
+      let num = document.getElementsByClassName("home")[0];
+      setTimeout(function animation() {
+        if (num.scrollTop > 0) {
+          setTimeout(() => {
+            // 步进速度
+            num.scrollTop = num.scrollTop - 30;
+            // 返回顶部
+            if (num.scrollTop > 0) {
+              num.scrollTop = num.scrollTop - 30;
+            }
+            animation();
+          }, 1);
+        }
+      }, 1);
+    },
+    async onLoad() {
+      this.listQuery.page = this.listQuery.page + 1;
+      await this.listQueryFn();
+      this.loading = false;
+      this.finished = this.list.length % 10;
     },
     hanlderChange(index) {
       clearInterval(this.interval);
@@ -168,12 +200,24 @@ export default {
         path: arr[this.current - 1],
         query: { coinId: row.coinId, webrtc: row.videoUrl }
       });
+    },
+    async listQueryFn() {
+      let { data } = await this.$post(`goods/showProduct?page=${this.listQuery.page}&size=${this.listQuery.size}`, {}, true);
+      this.list.push(...data.data);
+    },
+    hanlderProduct(row) {
+      wx.miniProgram.navigateTo({
+        url: `/pages/goods/goods?id=${row.id}`, //指定跳转至小程序页面的路径
+        success: function() {
+          console.log("success"); //页面跳转成功的回调函数
+        }
+      });
     }
   },
+  mounted() {
+    this.listQueryFn();
+  },
   activated() {
-    for (let i = 0; i < 10; i++) {
-      this.list.push(this.list.length + 1);
-    }
     // 让首页二个视频播放 视频已经压缩过了。
     // 监听浏览器返回
     window.addEventListener(
@@ -220,6 +264,7 @@ export default {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overflow-y: auto;
+  transform: all 0.5s;
   &-box {
     margin-top: 40px;
   }
@@ -346,6 +391,44 @@ export default {
     }
     ::v-deep .van-grid-item__content {
       padding-bottom: 0px;
+    }
+  }
+  .prize {
+    &-show {
+      font-size: 20px;
+      color: #333333;
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+  }
+  .product {
+    width: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    &-image {
+      height: 144px;
+      width: 144px;
+    }
+    &-name {
+      font-size: 12px;
+      color: #333333;
+      margin-top: 10px;
+      font-weight: bold;
+      height: 36px;
+      line-height: 1.5;
+      overflow: hidden;
+      display: inline-flex;
+      -webkit-line-clamp: 2;
+    }
+    &-price {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #b1504f;
+      font-weight: bold;
     }
   }
 }

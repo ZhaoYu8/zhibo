@@ -1,5 +1,5 @@
 <template>
-  <header class="header">
+  <header class="header" @click="hanlderDblclick">
     <div class="flex">
       <slot></slot>
     </div>
@@ -18,6 +18,11 @@
 </template>
 <script>
 import recharge from "./recharge";
+let clicked = 1;
+let clickedTime = {
+  timeA: "",
+  timeB: ""
+};
 export default {
   components: { recharge },
   naem: "header",
@@ -31,7 +36,23 @@ export default {
       return this.$store.state.user || {};
     }
   },
-  mounted() {}
+  methods: {
+    hanlderDblclick() {
+      if (clicked === 1) {
+        clickedTime.timeA = new Date();
+        clicked++;
+        return;
+      }
+      clickedTime.timeB = new Date();
+      // 大于300毫秒 表示不是双击事件 重新赋值
+      if (Math.abs(clickedTime.timeA - clickedTime.timeB) > 300) {
+        clickedTime.timeA = new Date();
+        return;
+      }
+      this.$emit("dblclick");
+      clicked = 1;
+    }
+  }
 };
 </script>
 <style scoped lang="scss">
@@ -43,7 +64,7 @@ export default {
 .header {
   position: fixed;
   height: 40px;
-  padding:0 10px 0 10px;
+  padding: 0 10px 0 10px;
   width: 100%;
   top: 0;
   left: 0;
