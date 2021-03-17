@@ -31,6 +31,9 @@
                   ref="video1"
                 ></video>
               </div>
+              <div class="toy-text">
+                推币机
+              </div>
             </van-col>
             <van-col span="12" class="toy-col" @click="hanlderChange(1)">
               <div class="toy-video">
@@ -42,6 +45,9 @@
                   playsinline
                   loop
                 ></video>
+              </div>
+              <div class="toy-text">
+                娃娃机
               </div>
             </van-col>
           </van-row>
@@ -72,6 +78,10 @@
         </div>
       </transition>
     </div>
+    <van-list v-model="loading" :finished="finished" :immediate-check="false" finished-text="没有更多了" @load="onLoad">
+      <van-cell v-for="item in list" :key="item" :title="item" />
+    </van-list>
+
     <!-- -->
   </div>
 </template>
@@ -89,7 +99,10 @@ export default {
       images: ["https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://s3.ax1x.com/2021/01/12/sGx2Ss.png", "https://s3.ax1x.com/2021/01/12/sGx2Ss.png"],
       interval: null,
       swipeList: [{ name: "游戏说明" }, { name: "新人奖励" }, { name: "兑换奖品" }, { name: "在线客服" }],
-      current: 1
+      current: 1,
+      list: [],
+      loading: false,
+      finished: false
     };
   },
   beforeDestroy() {
@@ -104,6 +117,9 @@ export default {
     }
   },
   methods: {
+    onLoad() {
+      console.log(123);
+    },
     hanlderChange(index) {
       clearInterval(this.interval);
       this.type = !this.type;
@@ -155,6 +171,9 @@ export default {
     }
   },
   activated() {
+    for (let i = 0; i < 10; i++) {
+      this.list.push(this.list.length + 1);
+    }
     // 让首页二个视频播放 视频已经压缩过了。
     // 监听浏览器返回
     window.addEventListener(
@@ -193,12 +212,14 @@ export default {
   justify-content: space-between;
 }
 .home {
-  height: calc(100% - 50px) !important;
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 10px;
   font-size: 12px;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
   &-box {
     margin-top: 40px;
   }
@@ -247,30 +268,24 @@ export default {
         object-fit: cover;
         object-position: 0% 80%;
       }
-      &::after {
-        content: "推币机";
-        color: #fff;
-        height: 30px;
-        display: inline-flex;
-        width: 100%;
-        font-size: 12px;
-        font-weight: bold;
-        justify-content: center;
-        align-items: center;
-        background-color: #d8d4d4;
-        margin-top: -4px;
-        z-index: 10;
-      }
+    }
+    &-text {
+      color: #fff;
+      height: 30px;
+      display: inline-flex;
+      width: 100%;
+      font-size: 12px;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center;
+      background-color: #d8d4d4;
+      margin-top: -4px;
+      z-index: 10;
     }
     &-col {
       &:last-child {
-        .toy-video {
-          &::after {
-            content: "娃娃机";
-          }
-          video {
-            object-position: 0% 20%;
-          }
+        video {
+          object-position: 0% 20%;
         }
       }
     }
