@@ -203,7 +203,7 @@ export default {
     },
     async listQueryFn() {
       let { data } = await this.$post(`goods/showProduct?page=${this.listQuery.page}&size=${this.listQuery.size}`, {}, true);
-      this.list.push(...data.data);
+      this.list.push(...data.list);
     },
     hanlderProduct(row) {
       wx.miniProgram.navigateTo({
