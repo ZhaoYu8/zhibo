@@ -1,12 +1,18 @@
 <template>
   <div class="ranking">
     <Header>
-      <i class="my-icon my-icon-arrow-double-left"></i>
       <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span>
     </Header>
-    <van-grid class="machine" :border="false" :column-num="2">
-      <van-grid-item v-for="(row, index) in machineList" :key="row.id">
-        <div class="machine-box" @click="play(row)">
+    <div class="hone-content">
+      <van-tabs v-model="active" animated swipeable type="card" class="ranking-tabs" color="#F7F1E5" background="#434141" title-active-color="#D2CD9F">
+        <van-tab v-for="index in 3" :title="arr[index - 1]" :key="index">
+          <div>
+            <canvas id="san"></canvas>
+          </div>
+        </van-tab>
+      </van-tabs>
+      <div class="machine">
+        <div v-for="(row, index) in machineList" :key="row.id" class="machine-box" @click="play(row)">
           <img class="machine-box-image" :src="require(`../../assets/${current === 1 ? 'tuibi' : 'wawa'}.jpg`)" />
           <div class="machine-box-header">
             <div>
@@ -19,8 +25,8 @@
           </div>
           <div class="machine-box-text">{{ current === 1 ? "推币机" : "娃娃机" }} {{ index + 1 }}</div>
         </div>
-      </van-grid-item>
-    </van-grid>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,10 +34,12 @@
 export default {
   data() {
     return {
+      active: 0,
       interval: null,
       current: 1,
       list: [],
-      machineList: []
+      machineList: [],
+      arr: ["日积分", "周积分", "月积分"]
     };
   },
   computed: {
@@ -62,6 +70,20 @@ export default {
         path: arr[this.current - 1],
         query: { coinId: row.coinId, webrtc: row.videoUrl }
       });
+    },
+    canvasInit() {
+      var bg = document.getElementById("san");
+      var ctx = bg.getContext("2d");
+      //填充三角形（等边）
+      ctx.beginPath();
+      var height = 200 * Math.sin(Math.PI / 3); //计算等边三角形的高
+      ctx.moveTo(100, 0); //从A（100,0）开始
+      ctx.lineTo(0, height); //从A(100,0)开始，画到B (0,173)结束
+      ctx.lineTo(200, height); //B(0,173)-C(200,173)
+      ctx.closePath(); //闭合路径
+      ctx.lineWidth = 2; //线的边框为10像素
+      ctx.strokeStyle = "#fff";
+      ctx.fill(); //闭合形状并且以填充方式绘制出来
     }
   },
   activated() {
@@ -70,6 +92,11 @@ export default {
     this.interval = setInterval(() => {
       this.init();
     }, 3000);
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.canvasInit();
+    });
   }
 };
 </script>
@@ -81,14 +108,13 @@ export default {
   justify-content: space-between;
 }
 .ranking {
-  margin-top: 40px;
+  margin-top: 50px;
   .machine {
-    background-color: #fff;
-    padding: 0 !important;
-    margin: 0 -10px;
-    @extend .flex;
+    display: flex;
     flex-wrap: wrap;
     &-box {
+      padding: 10px;
+      width: 50%;
       border-radius: 5px;
       position: relative;
       overflow: hidden;
@@ -136,8 +162,44 @@ export default {
         padding: 0 10px;
       }
     }
+    &-box:nth-of-type(odd) {
+      padding-right: 5px;
+    }
+    &-box:nth-of-type(even) {
+      padding-left: 5px;
+    }
     ::v-deep .van-grid-item__content {
       padding-bottom: 0px;
+    }
+  }
+  &-tabs {
+    .san {
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      height: 130px;
+      width: 130px;
+      margin: 0 auto;
+      transform: rotate(45deg);
+      margin-top: 50px;
+    }
+    ::v-deep .van-tabs__wrap {
+      height: 40px;
+      margin-top: 10px;
+      background-color: #434141;
+      .van-tabs__nav {
+        margin: 0;
+        border: 0;
+        height: 100%;
+        .van-tab {
+          font-size: 16px;
+          color: #f7f1e5;
+          border: 0;
+          transition: background 0.3s;
+        }
+        .van-tab--active {
+          background: linear-gradient(0deg, #d2cd9f, #484438);
+        }
+      }
     }
   }
 }

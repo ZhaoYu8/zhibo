@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     top() {
-      let num = document.getElementsByClassName("home")[0];
+      let num = document.getElementsByClassName("hone-content")[0];
       setTimeout(function animation() {
         if (num.scrollTop > 0) {
           setTimeout(() => {

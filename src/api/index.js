@@ -9,7 +9,7 @@ let instance = axios.create({
 });
 if (process.env.NODE_ENV === "development") {
   document.cookie =
-    ".AspNetCore.yiyuanmaidian=CfDJ8G41fqGd6VhLsxKEHimI3Bnh5vlxdvX5BZXROQZeLksnGSu1IOhG4d0nbk079O-3fIOzMZLRMk1TwF3S1TrRGOYXsaA_cDxXr4F0PXOUYrn-m_P9bTDqfdwP556shGqtSCeWiqgiEJHO6exRmYWj4mB-l1i4A447b7tFkyMoDBocjEsd3ejw78Gh0X4uQ3r43zgL2inxokZ3-QE35kFtNiuF9EMdO5r-GHV3TltoV2fBtvjvDGPhWPw01Yc9JlBe9y16WoOa7lU8eBsvvdvRCDNGkvAzMZux07tFfwShiKrnanqCv2PKKTDnhZKJASDXnW6Bo4aQab-C4VtbBcJXupKla5suyVjO3yGH36UnS3LD";
+    ".AspNetCore.yiyuanmaidian=CfDJ8G41fqGd6VhLsxKEHimI3BlpfFdEcfhx1du95KP3WaBqiHsO_WO6o1AYx_cR6aUV_76PNxF2CnscaHn4HAU6eQyKXJM0LZ-W_v-0l4LupeKAwZfEvfeMVufbPqEiGxDd-WKdLXvUagZO3E4EWx5MKJNgOvwPeeZN7R2koQHWKJFTO8dH0F-JZ2llWLEgpaDuAwoFWb4k0BKgTFlDw-dxyT-cweyvdheE6vCAEwqWPj4JMvGTl8mZRpZ4QvjtBzgxjX2rbf3bBHOX1u3RvAj1djgNc0OShfP52tEAzwF2r-bShScBrCC3-H9POwU03OG6vaXDXovyaRRYo3jm3QIFwoVUtHLQhAp24IxR_2FL84IL";
 } else {
   document.cookie = "";
 }
@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "development") {
 instance.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
-    token = token != "null" ? token : "b3sh54e3exqui6lzl0iurup8mkvm4lsw";
+    token = token != "null" ? token : "5tjg4rt9cuf2tk4ukhtor7co230dmvq1";
     if (token) {
       config.headers["X-Nideshop-Token"] = token;
     }

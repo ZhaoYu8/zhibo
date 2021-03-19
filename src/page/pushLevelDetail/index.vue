@@ -1,6 +1,7 @@
 <template>
   <div class="game">
     <vue-baberrage class="baberrage" :isShow="barrageIsShow" :barrageList="barrageList" :loop="barrageLoop"> </vue-baberrage>
+    <div class="game-flip" @click="play"><van-icon name="photograph" /></div>
     <game :list="ointmentList" />
     <div class="game-box">
       <van-row gutter="20" class="m-10" v-show="existence">
@@ -117,6 +118,9 @@ export default {
         coinId: this.coinId,
         userId: this.user.user.userId
       });
+    },
+    play() {
+      this.$bus.$emit("toggleVideo", this.options.webrtc);
     }
   }
 };

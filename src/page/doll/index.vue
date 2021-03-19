@@ -204,20 +204,6 @@ export default {
     z-index: 2;
     padding: 10px;
   }
-  &-flip {
-    position: absolute;
-    bottom: 200px;
-    right: 0;
-    z-index: 3;
-    background-color: #0b4367;
-    padding: 8px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    color: #fff;
-    font-size: 25px;
-    margin-right: 10px;
-  }
   &-begin {
     position: absolute;
     z-index: 2;

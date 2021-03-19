@@ -1,7 +1,21 @@
 <template>
-  <div class="video" @click="voice" :style="{ top: type ? '0' : '-100%' }">
+  <div class="video" :style="{ top: type ? '0' : '-100%' }">
     <transition name="fade">
-      <video v-show="toggle" :id="streamId" class="video-main" style="object-fit: cover;" :style="{ top: type ? '0' : '-100%' }" muted autoplay playsinline width="100%" height="100%"></video>
+      <div class="video-content">
+        <video
+          v-show="toggle"
+          id="onceVideo"
+          class="video-main"
+          style="object-fit: cover;"
+          src="../../assets/2.mp4"
+          :style="{ top: type ? '0' : '-100%' }"
+          muted
+          autoplay
+          playsinline
+          width="100%"
+          height="100%"
+        ></video>
+      </div>
     </transition>
   </div>
 </template>
@@ -26,24 +40,18 @@ export default {
     $route: {
       handler(val) {
         let video = document.getElementById(this.streamId);
+        if (!video) return;
         if (["doll", "pushLevelDetail"].includes(val.name)) {
-          // this.pullStream();
           this.type = true;
-          this.$nextTick(() => {
-            video.muted = false;
-          });
         } else {
-          this.type = false;
+          this.first = this.type = false;
           video.muted = true;
         }
-      }
+      },
+      immediate: true
     }
   },
   methods: {
-    voice() {
-      let video = document.getElementById(this.streamId);
-      video.muted = false;
-    },
     play() {
       let video = document.getElementById(this.streamId);
       video
@@ -52,6 +60,7 @@ export default {
           console.log("成功");
         })
         .catch(() => {
+          this.first = false;
           console.log("失败");
         });
     },
@@ -79,7 +88,7 @@ export default {
     },
     peerCallback() {
       let peerConnection = this.peerConnection;
-      peerConnection.ontrack = (e) => {
+      this.peerConnection.ontrack = (e) => {
         console.log("peerConnection.ontrack, kind:" + e.track.kind + ",track.id:" + e.track.id);
         let track = e.track;
         if (!peerConnection.stream) {
@@ -88,6 +97,7 @@ export default {
           peerConnection.stream.addTrack(track);
           this.onAddStream(peerConnection);
         } else {
+          console.log(2);
           peerConnection.stream.addTrack(track);
           console.log("track.lenght:" + peerConnection.stream.getTracks().length);
         }
@@ -135,7 +145,7 @@ export default {
       video.srcObject = e.stream;
       video.autoplay = true;
       video.playsinline = true;
-      this.$nextTick(() => {
+      setTimeout(() => {
         this.play();
       });
     }
@@ -156,13 +166,14 @@ export default {
     document.body.addEventListener(
       "click",
       () => {
-        if (!this.first) {
-          this.play();
-          this.first = true;
-        }
-        if (!this.type) return;
-        let video = document.getElementById(this.streamId);
-        video.muted = false;
+        if (this.first) return;
+        this.play();
+        this.first = true;
+        if (!["doll", "pushLevelDetail"].includes(this.$route.name)) return;
+        setTimeout(() => {
+          let video = document.getElementById(this.streamId);
+          video.muted = false;
+        }, 1000);
       },
       true
     );

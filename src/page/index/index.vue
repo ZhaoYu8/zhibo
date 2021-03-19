@@ -1,48 +1,49 @@
 <template>
   <div class="home">
     <Header>
-      <i class="my-icon my-icon-arrow-double-left"></i>
       <van-image round class="header-image" :src="user.avatar" fit="cover" /> <span class="header-name">{{ user.nickname }}</span>
     </Header>
-    <div class="home-box">
-      <div class="home-box-swipe">
-        <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
-          <van-swipe-item v-for="(image, index) in images" :key="index">
-            <van-image class="swipe-image" fit="cover" :src="image"></van-image>
-          </van-swipe-item>
-        </van-swipe>
-      </div>
-      <div class="grid dis-flex flex-x-around">
-        <div v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
-          <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
-          <div class="mt-10 f-b">{{ item.name }}</div>
+    <div class="hone-content">
+      <div class="home-box">
+        <div class="home-box-swipe">
+          <van-swipe class="swipe" :autoplay="8000" indicator-color="#777777">
+            <van-swipe-item v-for="(image, index) in images" :key="index">
+              <van-image class="swipe-image" fit="cover" :src="image"></van-image>
+            </van-swipe-item>
+          </van-swipe>
         </div>
-      </div>
-      <van-row class="toy" gutter="10">
-        <van-col span="12" class="toy-col" @click="hanlderChange(0)">
-          <div class="toy-video">
-            <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4" muted autoplay playsinline loop ref="video1"></video>
+        <div class="grid dis-flex flex-x-around">
+          <div v-for="(item, index) in swipeList" :key="item.name" class="flex-center flex-dir-column">
+            <van-image fit="cover" class="grid-img" :src="require(`../../assets/index${index + 1}.png`)"></van-image>
+            <div class="mt-10 f-b">{{ item.name }}</div>
           </div>
-        </van-col>
-        <van-col span="12" class="toy-col" @click="hanlderChange(1)">
-          <div class="toy-video">
-            <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4" ref="video2" muted autoplay playsinline loop></video>
-          </div>
-        </van-col>
-      </van-row>
-    </div>
-    <div class="prize">
-      <div class="prize-show">
-        <img class="prize-show-img" src="../../assets/icon/backBottom.png" />
-        <div class="prize-show-text">奖品展示</div>
-      </div>
-      <van-list v-model="loading" :finished="finished" :immediate-check="false" finished-text="没有更多了" @load="onLoad">
-        <div v-for="item in list" :key="item" class="product" @click="hanlderProduct(item)">
-          <van-image class="product-image" fit="cover" :src="item.list_pic_url"></van-image>
-          <div class="product-name">{{ item.name }}</div>
-          <div class="product-price">￥ {{ item.retail_price }}</div>
         </div>
-      </van-list>
+        <van-row class="toy" gutter="10">
+          <van-col span="12" class="toy-col" @click="hanlderChange(0)">
+            <div class="toy-video">
+              <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/3709a726-9bb5-486b-8986-9230051e32d9.mp4" muted autoplay playsinline loop ref="video1"></video>
+            </div>
+          </van-col>
+          <van-col span="12" class="toy-col" @click="hanlderChange(1)">
+            <div class="toy-video">
+              <video src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-2e3f30de-b94b-4470-92e1-80b77869669b/1e8bd423-d5df-4479-84ef-1ffd27f97c8d.mp4" ref="video2" muted autoplay playsinline loop></video>
+            </div>
+          </van-col>
+        </van-row>
+      </div>
+      <div class="prize">
+        <div class="prize-show">
+          <img class="prize-show-img" src="../../assets/icon/backBottom.png" />
+          <div class="prize-show-text">奖品展示</div>
+        </div>
+        <van-list v-model="loading" :finished="finished" :immediate-check="false" finished-text="没有更多了" @load="onLoad">
+          <div v-for="item in list" :key="item" class="product" @click="hanlderProduct(item)">
+            <van-image class="product-image" fit="cover" :src="item.list_pic_url"></van-image>
+            <div class="product-name">{{ item.name }}</div>
+            <div class="product-price">￥ {{ item.retail_price }}</div>
+          </div>
+        </van-list>
+      </div>
     </div>
 
     <!-- -->
@@ -163,13 +164,16 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 10px;
   font-size: 12px;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto;
-  transform: all 0.5s;
-  margin-top: 40px;
+  .hone-content {
+    padding: 10px;
+    margin-top: 50px;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    transform: all 0.5s;
+  }
   &-box-swipe {
     margin: 5px 0 10px;
     border-radius: 4px;
