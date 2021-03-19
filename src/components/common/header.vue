@@ -5,11 +5,12 @@
     </div>
     <ul class="header-money">
       <li class="flex" @click="type = true">
-        <Icon icon="zuanshi" class="gem" fontSize="26"></Icon>
+        <img src="../../assets/icon/coin.png" alt="" srcset="" class="gem" />
         <span>{{ user.coin }}</span>
+        <img src="../../assets/icon/add.png" alt="" srcset="" class="gem-add" />
       </li>
       <li class="flex">
-        <Icon icon="jinbi" class="gem" fontSize="26"></Icon>
+        <img src="../../assets/icon/cardroll.png" alt="" srcset="" class="gem" />
         <span>{{ user.point }}</span>
       </li>
     </ul>
@@ -37,6 +38,22 @@ export default {
     }
   },
   methods: {
+    top() {
+      let num = document.getElementsByClassName("home")[0];
+      setTimeout(function animation() {
+        if (num.scrollTop > 0) {
+          setTimeout(() => {
+            // 步进速度
+            num.scrollTop = num.scrollTop - 30;
+            // 返回顶部
+            if (num.scrollTop > 0) {
+              num.scrollTop = num.scrollTop - 30;
+            }
+            animation();
+          }, 1);
+        }
+      }, 1);
+    },
     hanlderDblclick() {
       if (clicked === 1) {
         clickedTime.timeA = new Date();
@@ -50,6 +67,7 @@ export default {
         return;
       }
       this.$emit("dblclick");
+      this.top();
       clicked = 1;
     }
   }
@@ -63,14 +81,14 @@ export default {
 }
 .header {
   position: fixed;
-  height: 40px;
+  height: 50px;
   padding: 0 10px 0 10px;
   width: 100%;
   top: 0;
   left: 0;
   @extend .flex;
   z-index: 20;
-  background-color: #fff;
+  background-color: $pro-color;
   &-image {
     width: 36px;
     height: 36px;
@@ -84,37 +102,28 @@ export default {
   &-money {
     @extend .flex;
     li {
-      background-color: #eeeeee;
+      background: linear-gradient(180deg, rgb(0, 172, 180, 0.23), rgb(0, 0, 0, 0.23));
       padding: 0 30px;
       border-radius: 20px;
       line-height: 22px;
       font-size: 14px;
-      color: #404040;
+      color: #11d5e4;
       position: relative;
       font-weight: bold;
-      margin-right: 10px;
       .gem {
         position: absolute;
         left: -10px;
+        top: -9px;
+      }
+      .gem-add {
+        @extend .flex;
+        position: absolute;
+        right: 0;
+        width: 25px;
       }
     }
     li:first-child {
       margin-right: 20px;
-      &::after {
-        @extend .flex;
-        justify-content: center;
-        content: "+";
-        background-color: #fb605c;
-        border: 1px solid #e0493d;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        color: #fff;
-        font-size: 24px;
-        position: absolute;
-        right: 0;
-        font-weight: 100;
-      }
     }
   }
 }

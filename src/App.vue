@@ -96,6 +96,7 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
+  background-color: $pro-color;
   .router {
     flex: 1;
     height: inherit;

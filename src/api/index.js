@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "development") {
 instance.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
-    token = token != "null" ? token : "kli1ltwx4zyw6ekewenee2eri4g398z4";
+    token = token != "null" ? token : "b3sh54e3exqui6lzl0iurup8mkvm4lsw";
     if (token) {
       config.headers["X-Nideshop-Token"] = token;
     }

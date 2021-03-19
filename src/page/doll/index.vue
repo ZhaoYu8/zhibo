@@ -139,12 +139,15 @@ export default {
         this.playType = !this.playType;
         this.$bus.$emit("updateInfo");
         this.queryPrize();
-      }, 10000);
+      }, 15000);
     },
     // 倒计时结束 触发
     finish() {
       this.playType = true;
-      this.queryPrize();
+      setTimeout(() => {
+        this.$bus.$emit("updateInfo");
+        this.queryPrize();
+      }, 15000);
     },
     // 查询中奖信息
     async queryPrize() {
